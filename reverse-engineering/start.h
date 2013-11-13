@@ -2,11 +2,8 @@
 #define START_H
 
 #include <iostream>
-#include <complex>
-#include <cmath>
-#include <fstream>
 
-#include "mystery.h"
+#include "ToolBox.h"
 
 using namespace std;
 
