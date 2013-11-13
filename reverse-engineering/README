@@ -1,1 +1,6 @@
 This directory is used to do reverse-engineering on the mystery function.
+
+
+Running start create a bunch of csv files containing images of points through the mystery function.
+Those files are stored in ./outputdata and are formatted as follows, (x,y) being the input and l the output:
+  x | y | real part of l | imaginary part of l | norm of l | argument (angle) of l

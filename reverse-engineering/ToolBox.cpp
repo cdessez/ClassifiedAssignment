@@ -30,22 +30,58 @@ bool ToolBox::grid(double xmin, double xmax, double xinc, double ymin,
 
 bool ToolBox::circle(double xcenter, double ycenter, double radius, 
     int npts, string path = "outputdata/circle.csv"){
-  //TODO
-  return false;
+  
+  fstream f;
+  f.open(path.c_str(), fstream::out);
+  
+  if (radius <= 0 || npts <= 0)
+    return false;
+
+  double anglestep = atan(1)*8 / npts;
+  for(int i = 0; i < npts; i++){
+    complex<double> c = complex<double>(xcenter, ycenter)
+      + polar(radius, i * anglestep);
+    printPointToFile(f, c.real(), c.imag(), L(c.real(), c.imag()));
+  }
+
+  f.close();
+
+  cout << "Process data for a circle, output in \"" << path << "\"" << endl;
+  return true;
 }
 
 
 bool ToolBox::segment(double xbeg, double ybeg, double xend, double yend,
     int npts, string path = "outputdata/segment.csv"){
-  //TODO
+  
+  fstream f;
+  f.open(path.c_str(), fstream::out);
+  
+  if (npts <= 0)
+    return false;
+  
+  complex<double> beg(xbeg, ybeg), end(xend, yend);
+  complex<double> step = (end - beg)* (1.0 / npts);
+  complex<double> c = beg;
+  for(int i = 0; i < npts; i++){
+    c += step;
+    printPointToFile(f, c.real(), c.imag(), L(c.real(), c.imag()));
+  }
+
+  f.close();
+
+  cout << "Process data for a circle, output in \"" << path << "\"" << endl;
+  return true;
   return false;
 }
 
 
 void ToolBox::printPointToFile(fstream &f, double x, double y, 
     complex<double> l){
-
-  f << x << ',' << y << ',' << l.real() << ',' << l.imag() << ',' << norm(l)
+  
+  // Format the file as following:
+  // x | y | real part of l | imag part of l | norm of l | argument (angle) of l
+  f << x << ',' << y << ',' << l.real() << ',' << l.imag() << ',' << abs(l)
     << ',' << arg(l) << endl;
 }
 

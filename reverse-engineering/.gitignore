@@ -2,3 +2,4 @@
 !mystery.o
 start
 outputdata/*
+*.swp
