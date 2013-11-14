@@ -1,0 +1,3 @@
+*.o
+!mystery.o
+start
