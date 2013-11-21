@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS =
+CXXFLAGS = 
 
 DEPS = start.h mystery.h LaplaceInv.h SeqLaplaceInv.h MPILaplaceInv.h Plotter.h
 OBJ = start.o LaplaceInv.o SeqLaplaceInv.o MPILaplaceInv.o Plotter.o

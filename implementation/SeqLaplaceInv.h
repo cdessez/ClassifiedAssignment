@@ -6,7 +6,9 @@
 class SeqLaplaceInv : public LaplaceInv {
 
   public:
-    virtual double operator()(double t);
+    SeqLaplaceInv();
+    SeqLaplaceInv(complex<double> (*func)(double,double));
+    double operator()(double t);
   protected:
 
   private:

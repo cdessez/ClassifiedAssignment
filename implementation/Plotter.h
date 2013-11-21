@@ -16,8 +16,9 @@ class Plotter {
     void plot(vector<double> v);
 
   protected:
-    LaplaceInv func;
+    LaplaceInv &func;
   private:
+    void wait_for_key();
 };
 
 #endif

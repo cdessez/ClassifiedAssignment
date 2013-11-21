@@ -88,15 +88,16 @@ void ToolBox::printPointToFile(fstream &f, double x, double y,
 
 bool ToolBox::sampleTests(){
 
-  return ToolBox::grid(-10.0, 10.0, 0.1, -10.0, 10.0, 0.25) &&
-    ToolBox::circle(0.0, 0.0, 1.0, 120, "outputdata/circle_1.csv") &&
-    ToolBox::circle(0.0, 0.0, 2.0, 120, "outputdata/circle_2.csv") &&
-    ToolBox::circle(0.0, 0.0, 3.0, 120, "outputdata/circle_3.csv") &&
-    ToolBox::circle(0.0, 0.0, 5.0, 120, "outputdata/circle_5.csv") &&
-    ToolBox::segment(-1.0, 0.0, 1.0, 0.0, 50, "outputdata/segment_hori.csv") &&
-    ToolBox::segment(0.0, -1.0, 0.0, 1.0, 50, "outputdata/segment_vert.csv") &&
-    ToolBox::segment(-1.0, -1.0, 1.0, 1.0, 70, "outputdata/segment_diag.csv") &&
-    ToolBox::segment(-1.0, 1.0, 1.0, -1.0, 70, "outputdata/segment_diag2.csv");
+  return ToolBox::grid(-10.0, 10.0, 0.2, -10.0, 10.0, 0.2) &&
+    ToolBox::circle(0.0, 0.0, 1.0, 1200, "outputdata/circle_1.csv") &&
+    ToolBox::circle(0.0, 0.0, 2.0, 1200, "outputdata/circle_2.csv") &&
+    ToolBox::circle(0.0, 0.0, 3.0, 1200, "outputdata/circle_3.csv") &&
+    ToolBox::circle(0.0, 0.0, 5.0, 1200, "outputdata/circle_5.csv") &&
+    ToolBox::segment(-1.0, 0.0, 1.0, 0.0, 1000, "outputdata/segment_hori.csv") &&
+    ToolBox::segment(0.0, -1.0, 0.0, 1.0, 1000, "outputdata/segment_vert.csv") &&
+    ToolBox::segment(0.0, -5.0, 0.0, 5.0, 3000, "outputdata/segment_vert5.csv") &&
+    ToolBox::segment(-1.0, -1.0, 1.0, 1.0, 1200, "outputdata/segment_diag.csv") &&
+    ToolBox::segment(-1.0, 1.0, 1.0, -1.0, 1200, "outputdata/segment_diag2.csv");
 }
 
 

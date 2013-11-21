@@ -13,7 +13,7 @@ class LaplaceInv {
     LaplaceInv();
     LaplaceInv(complex<double> (*func)(double,double));
     void setFunc(complex<double> (*func)(double,double));
-    virtual double operator()(double t);
+    virtual double operator()(double t) = 0;
     virtual vector<double> operator()(vector<double> &v);
   protected:
 
