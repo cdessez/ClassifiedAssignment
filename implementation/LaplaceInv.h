@@ -17,7 +17,7 @@ class LaplaceInv {
     virtual vector<double> operator()(vector<double> &v);
   protected:
 
-  private:
+  protected:
     complex<double> (*func)(double,double);
 };
 

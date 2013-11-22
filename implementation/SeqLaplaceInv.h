@@ -1,7 +1,9 @@
 #ifndef SEQLAPLACEINV_H
 #define SEQLAPLACEINV_H
 
+#include <math.h>
 #include "LaplaceInv.h"
+#include "mystery.h"
 
 class SeqLaplaceInv : public LaplaceInv {
 

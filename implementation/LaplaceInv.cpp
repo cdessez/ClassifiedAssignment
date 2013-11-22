@@ -5,7 +5,7 @@ LaplaceInv::LaplaceInv(): func(NULL){
 }
 
 
-LaplaceInv::LaplaceInv(complex<double> (*func)(double,double)): func(NULL){
+LaplaceInv::LaplaceInv(complex<double> (*func)(double,double)): func(func){
 }
 
 
