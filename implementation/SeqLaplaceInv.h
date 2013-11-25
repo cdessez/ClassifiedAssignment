@@ -15,6 +15,7 @@ class SeqLaplaceInv : public LaplaceInv {
   protected:
     int N;
     vector<int> Cm;
+    int sum_Cm;
     int M;
 
   private:

@@ -1,77 +1,55 @@
 #include "SeqLaplaceInv.h"
 
 static double PI = atan(1)*4;
-static int defaultN = 15;
-static int defaultM = 12;
+static int defaultN = 100;
+static int defaultM = 15;
 
 SeqLaplaceInv::SeqLaplaceInv(): LaplaceInv(), N(defaultN), 
-        M(defaultM), Cm(defaultM) {
-  for (int i = 0; i < M; i++)
-    Cm[i] = C(i,M);
+        M(defaultM), Cm(defaultM+1), sum_Cm(0) {
+  for (int i = 0; i <= M; i++)
+    sum_Cm += (Cm[i] = C(i,M));
 }
 
 SeqLaplaceInv::SeqLaplaceInv(complex<double> (*func)(double,double)): 
-        LaplaceInv(func), N(defaultN), M(defaultM), Cm(defaultM) {
-  for (int i = 0; i < M; i++)
-    Cm[i] = C(i,M);
+        LaplaceInv(func), N(defaultN), M(defaultM), Cm(defaultM+1), sum_Cm(0) {
+  for (int i = 0; i <= M; i++)
+    sum_Cm += (Cm[i] = C(i,M));
 }
 
 SeqLaplaceInv::SeqLaplaceInv(complex<double> (*func)(double,double), int N, 
-                              int M): 
-        LaplaceInv(func), N(N), M(M), Cm(M) {
+        int M): LaplaceInv(func), N(N), M(M), Cm(M+1), sum_Cm(0) {
   for (int i = 0; i < M; i++)
-    Cm[i] = C(i,M);
+    sum_Cm += (Cm[i] = C(i,M));
 }
 
 double SeqLaplaceInv::operator()(double t){
   const double A = 18.4;
-	const double U = exp(A/2.)/t;
-	const double X = A/(2.*t);
-	const double H = PI/t;
-	double Sum = func(X,0.).real()/2.;
-  std::vector<double> CM;
-  CM.push_back(1.);
-  CM.push_back(11.);
-  CM.push_back(55.);
-  CM.push_back(165.);
-  CM.push_back(330.);
-  CM.push_back(462.);
-  CM.push_back(462.);
-  CM.push_back(330.);
-  CM.push_back(165.);
-  CM.push_back(55.);
-  CM.push_back(11.);
-  CM.push_back(1.);
-	for(int i = 1; i <= N; i++) {
-		double Y = i*H;
-		Sum += (i % 2 == 0 ? func(X,Y).real() : -func(X,Y).real());
-	}
+  const double U = exp(A/2.)/t;
+  const double X = A/(2.*t);
+  const double H = PI/t;
+  double Sum = func(X,0.).real()/2.;
 
-	std::vector<double> SU;
-	SU.push_back(Sum);
+  for(int i = 1; i <= N; i++) {
+    double Y = i*H;
+    Sum += ((i & 0x1) == 0x0 ? func(X,Y).real() : -func(X,Y).real());
+  }
 
-  for(int k = 1; k <= M; k++) {
-		int i = N + k;
-		double Y = i*H;
-    double nextSU = SU.back() + (i % 2 == 0 ? func(X,Y).real() : -func(X,Y).real());
-		SU.push_back(nextSU);
-	}
+  std::vector<double> SU;
+  SU.push_back(Sum);
+
+  for(int k = 1; k <= M+1; k++) {
+    int i = N + k;
+    double Y = i*H;
+    double nextSU = SU.back() + ((i & 0x1) == 0x0 ? func(X,Y).real() : -func(X,Y).real());
+    SU.push_back(nextSU);
+  }
   
-	double Avgsu = 0;
-	double Avgsu1 = 0;
-	for(int j = 1; j <= M; j++) {
-		Avgsu += CM[j-1]*SU[j-1];
-		Avgsu1 += CM[j-1]*SU[j];
-	}
+  double Avgsu = 0;
+  for(int j = 0; j <= M; j++) {
+    Avgsu += static_cast<double>(Cm[j]) * SU[j+1];
+  }
 
-	double sum_of_elems = 0;
-	for(vector<double>::iterator j=CM.begin(); j!=CM.end(); ++j)
-    	sum_of_elems += *j;
-
-	double Fun = U*Avgsu/sum_of_elems;
-	double Fun1 = U*Avgsu1/sum_of_elems;
-
-	return Fun1;
+  return U * Avgsu / static_cast<double>(sum_Cm);
 }
 
 int SeqLaplaceInv::C(int k, int m){
