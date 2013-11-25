@@ -5,21 +5,22 @@ static int defaultN = 100;
 static int defaultM = 15;
 
 SeqLaplaceInv::SeqLaplaceInv(): LaplaceInv(), N(defaultN), 
-        M(defaultM), Cm(defaultM+1), sum_Cm(0) {
+        M(defaultM), Cm(defaultM+1), sum_Cm(0x1 << defaultM) {
   for (int i = 0; i <= M; i++)
-    sum_Cm += (Cm[i] = C(i,M));
+    Cm[i] = C(i,M);
 }
 
 SeqLaplaceInv::SeqLaplaceInv(complex<double> (*func)(double,double)): 
-        LaplaceInv(func), N(defaultN), M(defaultM), Cm(defaultM+1), sum_Cm(0) {
+        LaplaceInv(func), N(defaultN), M(defaultM), Cm(defaultM+1), 
+        sum_Cm(0x1 << defaultM) {
   for (int i = 0; i <= M; i++)
-    sum_Cm += (Cm[i] = C(i,M));
+    Cm[i] = C(i,M);
 }
 
 SeqLaplaceInv::SeqLaplaceInv(complex<double> (*func)(double,double), int N, 
-        int M): LaplaceInv(func), N(N), M(M), Cm(M+1), sum_Cm(0) {
+        int M): LaplaceInv(func), N(N), M(M), Cm(M+1), sum_Cm(0x1 << M) {
   for (int i = 0; i < M; i++)
-    sum_Cm += (Cm[i] = C(i,M));
+    Cm[i] = C(i,M);
 }
 
 double SeqLaplaceInv::operator()(double t){
@@ -28,27 +29,24 @@ double SeqLaplaceInv::operator()(double t){
   const double X = A/(2.*t);
   const double H = PI/t;
   double Sum = func(X,0.).real()/2.;
-
+  
+  double Y = 0.;
   for(int i = 1; i <= N; i++) {
-    double Y = i*H;
+    Y += H;
     Sum += ((i & 0x1) == 0x0 ? func(X,Y).real() : -func(X,Y).real());
   }
 
-  std::vector<double> SU;
-  SU.push_back(Sum);
-
-  for(int k = 1; k <= M+1; k++) {
-    int i = N + k;
-    double Y = i*H;
-    double nextSU = SU.back() + ((i & 0x1) == 0x0 ? func(X,Y).real() : -func(X,Y).real());
-    SU.push_back(nextSU);
+  double SU = Sum;
+  double Avgsu = 0;
+  int i = N;
+  Y = i*H;
+  for(int k = 0; k <= M; k++) {
+    i++;
+    Y += H;
+    SU += (i & 0x1) == 0x0 ? func(X,Y).real() : -func(X,Y).real();
+    Avgsu += static_cast<double>(Cm[k]) * SU;
   }
   
-  double Avgsu = 0;
-  for(int j = 0; j <= M; j++) {
-    Avgsu += static_cast<double>(Cm[j]) * SU[j+1];
-  }
-
   return U * Avgsu / static_cast<double>(sum_Cm);
 }
 
