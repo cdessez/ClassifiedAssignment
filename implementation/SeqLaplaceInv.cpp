@@ -60,4 +60,14 @@ int SeqLaplaceInv::C(int k, int m){
   return static_cast<int>(res);
 }
 
-
+vector<double> SeqLaplaceInv::operator()(vector<double> &v){
+  vector<double> res(v.size());
+  double tbeg, tend;
+  tbeg = time(0);
+  for(int i = 0; i < v.size(); i++){
+    res[i] = (*this)(v[i]);
+  }
+  tend = time(0);
+  cout << "Execution time: " << setprecision(6) << tend - tbeg << " s" << endl;
+  return res;
+}

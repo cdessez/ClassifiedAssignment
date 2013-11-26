@@ -2,6 +2,8 @@
 #define SEQLAPLACEINV_H
 
 #include <math.h>
+#include <time.h>
+#include <iomanip>
 #include "LaplaceInv.h"
 #include "mystery.h"
 
@@ -12,6 +14,7 @@ class SeqLaplaceInv : public LaplaceInv {
     SeqLaplaceInv(complex<double> (*func)(double,double));
     SeqLaplaceInv(complex<double> (*func)(double,double), int N, int M);
     double operator()(double t);
+    vector<double> operator()(vector<double> &v);
   protected:
     int N;
     vector<int> Cm;

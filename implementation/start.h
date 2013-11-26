@@ -10,6 +10,7 @@ using namespace std;
 #include "mystery.h"
 
 #include "SeqLaplaceInv.h"
+#include "MPILaplaceInv.h"
 #include "Plotter.h"
 
 #endif

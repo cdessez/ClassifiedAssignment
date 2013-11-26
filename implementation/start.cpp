@@ -1,11 +1,17 @@
 #include "start.h"
 
-int main() {
+int main(int argc, char **argv) {
+  
+  LaplaceInv *func;
 
-  SeqLaplaceInv func(&L);
-  Plotter plotter(func);
+  if (argc == 2 && string(argv[1]).compare("--mpi") == 0)
+    func = new MPILaplaceInv(&L);
+  else
+    func = new SeqLaplaceInv(&L);
+  
+  Plotter plotter(*func);
   vector<double> v;
-  for(double t = 0.1; t <= 12.0; t+=0.2){
+  for(double t = 0.; t <= 12.01; t+=0.1){
     v.push_back(t);
   }
 

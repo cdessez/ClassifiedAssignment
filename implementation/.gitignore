@@ -1,3 +1,6 @@
 *.o
 !mystery.o
 start
+mpicore
+in.txt
+out.txt
