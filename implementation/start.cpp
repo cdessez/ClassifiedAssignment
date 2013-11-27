@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
     for (int i = 1; i < argc; i++){
       if (string(argv[i]).compare("--seq") == 0){
         func = new SeqLaplaceInv(&L);
-        func->setDisplayTime(true);
+        ((SeqLaplaceInv *) func)->setDisplayTime(true);
         break;
       } else if (string(argv[i]).compare("--mpi") == 0){
         if (i == argc - 1){
