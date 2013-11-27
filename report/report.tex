@@ -4,6 +4,7 @@
 \usepackage{array}
 \usepackage{tabularx}
 \usepackage[latin1]{inputenc}
+\usepackage{mathtools}
 \setlength{\topmargin}{-.5in}
 \setlength{\textheight}{9in}
 \setlength{\oddsidemargin}{.125in}
@@ -58,6 +59,53 @@ Every spy needs a good watch! If we look closely to the computer system, the sma
 \subsection{Sequential algorithm}
 
 \subsection{Parallel MPI algorithm}
+
+In order to accelerate what this machine does, we can use multiple processors in parallel. The program takes an array of data for input, and we call the algorithm for each data, so we propose two different methods to parallelize the implementation. In the first method we parallelize the algorithm by rearranging the sequential algorithm. In the second method, we divide the input in chunks, and call the sequential algorithm on each chunk.
+
+\subsubsection{Parallel version of the algorithm}
+
+In the sequential version of the algorithm, we have multiple sums. We would want to these sums in parallel but the problem is that each term of each sum depends on the previous sum and one or more other terms. So in order to parallelize the algorithm we have to come up with steps that are independant from each others.
+
+\subparagraph{Maths behind the parallelization}
+~~\\
+The calcul of Fun is the part of the algorithm we want to parallelize.
+\begin{equation}
+	sum = \frac{1}{2} *  \sum_{i=1}^{Ntr} (-1)^N*fnRf(X,i*H)
+\end{equation}
+\begin{equation}
+	SU(1) = sum
+\end{equation}
+\begin{equation}
+	SU(k + 1) = SU(K) + (-1)^N*fnRf(X,(Ntr + k)*H)
+\end{equation}
+\begin{equation}
+	Fun = \frac{U}{Ctot} * \sum_{i=1}^{M+1} \binom{M}{i}*SU(i)
+\end{equation}
+The problem if we want to parallelize the calculation of Fun this way is that each SU(i) needs SU(i-1) to be calculated.
+We can rewrite (3) this way :
+\begin{equation}
+	SU(k) = sum + \sum_{i=1}^{k-1} (-1)^{Ntr+k-1}*fnRf(X,(Ntr + k-1)*H)
+\end{equation}
+In this case each there are some value of fnRf that are used by multiple SU, so we lose time if we have to make these expensive calculation multiple times.
+From (4) and (5) we can rewrite a formulation for Fun :
+\begin{equation}
+	Fun = \frac{U}{Ctot} * \sum_{k=1}^{M+1} \binom{M+1}{k}*(sum + \sum_{i=1}^{k-1} (-1)^{Ntr+k-1}*fnRf(X,(Ntr + k-1)*H))
+\end{equation}
+We can change (6) into :
+\begin{equation}
+	S(1) = sum
+\end{equation}
+\begin{equation}
+	S(k) = (-1)^{Ntr+k-1}*fnRf(X,(Ntr + k-1)*H)
+\end{equation}
+\begin{equation}
+	Fun = U *\sum_{k=1}^{M+1}(S(k)*(1-\frac{ \sum_{i=1}^{k-1} \binom{M+1}{i}}{Ctot}))
+\end{equation}
+Then we can calculate each term of the sum in (9) in parallel.
+
+\subparagraph{Implementation}
+
+\subsubsection{Chunked method}
 
 \subsection{Parallel OpenMP algorithm}
 
