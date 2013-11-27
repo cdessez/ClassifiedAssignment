@@ -6,18 +6,14 @@ static const string ifile = "in.txt";
 static const string ofile = "out.txt";
 static const string hostsfile = "hosts";
 static const int mpi_pool_size = 16;
-static const int port = 7007;
+static const int port = rand() % 1000 + 10007;
 
-MPILaplaceInv::MPILaplaceInv(): LaplaceInv(), N(defaultN), M(defaultM){
+MPILaplaceInv::MPILaplaceInv(int ptype): LaplaceInv(), ptype(ptype), 
+      N(defaultN), M(defaultM){
 }
 
-MPILaplaceInv::MPILaplaceInv(complex<double> (*func)(double,double)): 
-      LaplaceInv(func), N(defaultN), M(defaultM){
-}
-
-
-MPILaplaceInv::MPILaplaceInv(complex<double> (*func)(double,double), int N,
-      int M): LaplaceInv(func), N(N), M(M){
+MPILaplaceInv::MPILaplaceInv(int ptype, int N, int M): 
+      LaplaceInv(), ptype(ptype), N(N), M(M){
 }
 
 double MPILaplaceInv::operator()(double t){
@@ -52,15 +48,17 @@ vector<double> MPILaplaceInv::operator()(vector<double> &v){
     char arg_N[10];
     char arg_M[10];
     char arg_size[10];
+    char arg_ptype[10];
     char arg_port[10];
     sprintf(arg_psize, "%d", mpi_pool_size);
     sprintf(arg_N, "%d", N);
     sprintf(arg_M, "%d", M);
     sprintf(arg_size, "%d", v.size());
+    sprintf(arg_ptype, "%d", ptype);
     sprintf(arg_port, "%d", port);
     execl("/usr/bin/mpirun", "/usr/bin/mpirun", "-machinefile",
           hostsfile.c_str(), "-np", arg_psize, "./mpicore", arg_N, arg_M,
-          arg_size, arg_port, NULL);
+          arg_size, arg_ptype, arg_port, NULL);
 
     exit(EXIT_FAILURE);
   }

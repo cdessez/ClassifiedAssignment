@@ -20,17 +20,24 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+enum ParallelType {
+  MPI1 = 0,
+  MPI2 = 1,
+  MPI1_OPENMP = 2,
+  MPI2_OPENMP = 3
+};
+
 class MPILaplaceInv : public LaplaceInv {
 
   public:
-    MPILaplaceInv();
-    MPILaplaceInv(complex<double> (*func)(double,double));
-    MPILaplaceInv(complex<double> (*func)(double,double), int N, int M);
+    MPILaplaceInv(int ptype);
+    MPILaplaceInv(int ptype, int N, int M);
     double operator()(double t);
     vector<double> operator()(vector<double> &v);
   protected:
     int N;
     int M;
+    int ptype;
     void waitForConnectionSocket(int port);
   private:
 };

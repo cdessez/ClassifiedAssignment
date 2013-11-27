@@ -20,6 +20,13 @@ static const int MASTER_RANK = 0;
 static const string ifile = "in.txt";
 static const string ofile = "out.txt";
 
+enum ParallelType {
+  MPI1 = 0,
+  MPI2 = 1,
+  MPI1_OPENMP = 2,
+  MPI2_OPENMP = 3
+};
+
 void notifyWrapperViaSocket(int port){
   int fd, numbytes;   /* files descriptors */     
   struct hostent *he;         /* structure that will get information about remote host */ 
@@ -65,9 +72,10 @@ int main(int argc, char **argv){
   double tbeg, tend;
 
   int N, M, input_size; // arguments for the laplace inversion algorithm
+  int ptype; // determine the type of computation
   int port; // used to send the signal to wake up the wrapper
 
-  if (argc != 5){
+  if (argc != 6){
     cerr << "Wrong call to mpicore: it takes 4 arguments (N, M, size of" 
           << "the input and wake up port)" << endl;
     exit(EXIT_FAILURE);
@@ -75,6 +83,7 @@ int main(int argc, char **argv){
   N = atoi(argv[1]);
   M = atoi(argv[2]);
   port = atoi(argv[4]);
+  ptype = atoi(argv[5]);
   input_size = atoi(argv[3]);
   if (N == 0 or M == 0){
     cerr << "Error while parsing the arguments, or bad arguments" << endl;
