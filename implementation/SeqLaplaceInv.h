@@ -15,11 +15,13 @@ class SeqLaplaceInv : public LaplaceInv {
     SeqLaplaceInv(complex<double> (*func)(double,double), int N, int M);
     double operator()(double t);
     vector<double> operator()(vector<double> &v);
+    void setDisplayTime(bool b);
   protected:
     int N;
     vector<int> Cm;
     int sum_Cm;
     int M;
+    bool displayTime;
 
   private:
     inline int C(int k, int m);
