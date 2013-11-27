@@ -16,7 +16,8 @@ EXE = start
 
 MPICXX = mpic++
 MPICXXFLAGS =
-
+MPIOBJ = mpicore.o #LaplaceInv.o SeqLaplaceInv.o
+MPILIBS = mystery.o 
 MPIEXE = mpicore
 
 #####
@@ -32,13 +33,16 @@ $(EXE): $(OBJ)
 	$(CXX) -o $@ $(OBJ) $(CXXFLAGS) $(LIBS)
 	chmod +x $@
 
-$(MPIEXE): mpicore.cpp
-	$(MPICXX) mpicore.cpp -o $@ $(MPICXXFLAGS)
+mpicore.o: mpicore.cpp
+	$(MPICXX) -Wall -c -o $@ $< $(MPICXXFLAGS)
+
+$(MPIEXE): $(MPIOBJ)
+	$(MPICXX) -o $@ $(MPIOBJ) $(MPICXXFLAGS) $(MPILIBS)
 
 clean:
 	rm -f $(OBJ)
 	rm -f $(EXE)
-	rm -f mpicore.o
+	rm -f $(MPIOBJ)
 	rm -f $(MPIEXE)
 	rm -f in.txt out.txt
 
