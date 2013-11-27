@@ -72,8 +72,8 @@ int main(int argc, char **argv){
   }
   N = atoi(argv[1]);
   M = atoi(argv[2]);
-  port = atoi(argv[4]);
-  ptype = atoi(argv[5]);
+  port = atoi(argv[5]);
+  ptype = atoi(argv[4]);
   input_size = atoi(argv[3]);
   if (N == 0 or M == 0){
     cerr << "Error while parsing the arguments, or bad arguments" << endl;
