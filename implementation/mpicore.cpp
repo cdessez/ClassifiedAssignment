@@ -106,8 +106,22 @@ int main(int argc, char **argv){
   }
   
   // MPI processing code
- 
-  mpi1(input, output, N, M, input_size, my_rank, pool_size, iammaster, MASTER_RANK);
+  switch(ptype){
+    case MPI1 :
+      mpi1(input, output, N, M, input_size, my_rank, pool_size, iammaster, MASTER_RANK);
+      break;
+    case MPI2 :
+      break;
+    case MPI1_OPENMP :
+      break;
+    case MPI2_OPENMP :
+      break;
+    default :
+      if(iammaster)
+	cerr << "Something bad happened (unknown process type)" << endl;
+      exit(EXIT_FAILURE);
+      break;
+  }
   
   if (iammaster){
     // MPI: the master should gather the output values in the right order in
