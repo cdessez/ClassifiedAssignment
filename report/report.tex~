@@ -63,6 +63,11 @@ Every spy needs a good watch! If we look closely to the computer system, the sma
 
 \newpage
 
+\appendix
+\section*{Problems encountered with the MPI implementation}
+
+\newpage
+
 \begin{figure}[!h]
 \includegraphics[width=7cm]{bt.jpg}
 \end{figure}
