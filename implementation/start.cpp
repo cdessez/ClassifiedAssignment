@@ -16,7 +16,7 @@ void printHelp(){
 
 int main(int argc, char **argv) {
   
-  LaplaceInv *func;
+  LaplaceInv *func = NULL;
 
   if (argc == 1){
     printHelp();
@@ -45,7 +45,8 @@ int main(int argc, char **argv) {
         ptype += 2;
       }
     }
-    func = new MPILaplaceInv(ptype);
+    if (func == NULL)
+      func = new MPILaplaceInv(ptype);
   }  
   
   Plotter plotter(*func);
