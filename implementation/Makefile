@@ -16,7 +16,7 @@ EXE = start
 
 MPICXX = mpic++
 MPICXXFLAGS =
-MPIOBJ = mpicore.o #LaplaceInv.o SeqLaplaceInv.o
+MPIOBJ = mpicore.o LaplaceInv.o SeqLaplaceInv.o mpi_func.o
 MPILIBS = mystery.o 
 MPIEXE = mpicore
 
@@ -34,6 +34,9 @@ $(EXE): $(OBJ)
 	chmod +x $@
 
 mpicore.o: mpicore.cpp
+	$(MPICXX) -Wall -c -o $@ $< $(MPICXXFLAGS)
+
+mpi_func.o: mpi_func.cpp mpi_func.h
 	$(MPICXX) -Wall -c -o $@ $< $(MPICXXFLAGS)
 
 $(MPIEXE): $(MPIOBJ)
