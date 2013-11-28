@@ -107,20 +107,20 @@ Written this way, the terms of the sum in \eqref{Fun3} are independent. So we ca
 
 \subsubsection*{Implementation}
 
-We use MPI to implement the parallel version of the algorithm. We set as master one of the processes, which will gather all the calculation results from the other processes and compute them to obtain the final result. For each time $t$ of the input data, we run the parallel algorithm. The master is the only one whic knows the input. Therefore the first step is to broadcast the $t$ to all the processes. Then the algorithm is made of two major steps :
+We use MPI to implement the parallel version of the algorithm. We set as "master" one of the processes. It will gather all the calculation results from the other processes and compute them to obtain the final result. For each time $t$ of the input data, we run the parallel algorithm. The master is the only process that knows the input. Therefore the first step is to broadcast the $t$ to all the processes. Then the algorithm is made of two major steps :
 
 \begin{itemize}
 
-\item the calculation of $sum$. This expression contains $Ntr$ terms. Therefore each process calculates $\lfloor \frac{Ntr}{N_p}Ê\rfloor$ terms, and then we do a reduce operation and the master gets the sum of all the terms. Concretely, after the calculation of one term by the processes, we do a reduce operation and the master saves a partial sum, which it updates at each step. If $Ntr$ is not divisible by $N_p$, the master calculates the remaining terms of the sum. 
+\item the calculation of $sum$. This expression contains $Ntr$ terms. Therefore each process calculates $\lfloor \frac{Ntr}{N_p}ï¿½\rfloor$ terms, and then we do a reduce operation and the master gets the sum of all the terms. Concretely, after the calculation of one term by the processes, we do a reduce operation and the master saves a partial sum, which it updates at each step. If $Ntr$ is not divisible by $N_p$, the master calculates the remaining terms of the sum. 
 
-\item the calculation of $Fun$. It contains $M+1$ terms, then in the same way as for $sum$ the processes evaluates $\lfloor \frac{M+1}{N_p}Ê\rfloor$ terms of the sum. Afterwards the MPI program does  a reduce operation and the master gets the total sum. It also deals with remaining terms if $M+1$ is not divisible by $N_p$.
+\item the calculation of $Fun$. It contains $M+1$ terms, then in the same way as for $sum$ the processes evaluates $\lfloor \frac{M+1}{N_p}ï¿½\rfloor$ terms of the sum. Afterwards the MPI program does  a reduce operation and the master gets the total sum. It also deals with remaining terms if $M+1$ is not divisible by $N_p$.
 
 \end{itemize}
 
 Finally, the master returns the value of $Fun$, and the operation is repeated for all the input. 
 
 \subsubsection{Chunked method}
-The previous method performed a parallel calculation for each data point of the input. The chunked method does otherwise. It runs in parallel the sequential algorithm for different data points. We call $N_{input}$ the size of the input. The chunked method also uses a process as master, and is divided into there parts: 
+The previous method performed a parallel calculation for each data point of the input. The chunked method does otherwise. It runs in parallel the sequential algorithm for different data points. We call $N_{input}$ the size of the input. The chunked method also uses a process as master, and is divided into three parts: 
 
 \begin{itemize}
 
