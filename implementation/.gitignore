@@ -1,6 +1,6 @@
 *.o
 !mystery.o
-start
+whattime
 mpicore
 in.txt
 out.txt

@@ -1,7 +1,7 @@
 #include "start.h"
 
 void printHelp(){
-  cout << "Usage: start TYPE [OPTION]" << endl << endl;
+  cout << "Usage: whattime TYPE [OPTION]" << endl << endl;
   cout << "where  TYPE := {--seq | --mpi MPITYPE}" << endl;
   cout << "       MPITYPE := { 1 | 2 }" << endl;
   cout << "       OPTION := { --openmp }" << endl << endl;
@@ -11,7 +11,8 @@ void printHelp(){
   cout << " a single value" << endl;
   cout << "* MPITYPE 2 corresponds to the distribution of the values to";
   cout << "over multiples process (and thus over multiple machines)" << endl;
-  cout << "* --openmp uses multithreading inside each mpi process" << endl;
+  cout << "* --openmp uses multithreading inside each mpi process ";
+  cout << "(only type 2)" << endl;
   cout << endl << "/!\\ this process should be launched on the machine";
   cout << " pointed by the first line of the file \"hosts\"" << endl;
 }
