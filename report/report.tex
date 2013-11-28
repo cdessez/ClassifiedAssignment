@@ -162,7 +162,35 @@ Once we were sure that our algorithms using MPI were properly working, we decide
 \newpage
 
 \appendix
-\section*{Problems encountered with the MPI integration}
+
+\section{More about the program}
+
+\subsection{Launching the program}
+
+The main part of the project is in the repository \verb_implementation/_.
+
+First you need to compile the programs. A complete \textit{Makefile} is provided so that you only need the command \verb_$ make_.\\
+
+Then try \verb_./whattime_ to get help about the syntax to use to launch the program.
+
+\subsection{Overall architecture}
+
+The general program contains 4 C++ classes:
+\begin{itemize}
+  \item \verb_LaplaceInv_: an abstract class that represents a Laplace transform inversion. It must be passed a function of the same signature as the mystery function \verb_L_. The virtual operator \verb_()_ called on a \verb_double_ value or a \verb_vector<double>_ is meant to return its image by the Laplace transform inversion of that function. It is supposed to be inherited multiple times for the different type of implementation of this inversion.
+  \item \verb_SeqLaplaceInv_ and \verb_MPILaplaceInv_: inherit from \verb_LaplaceInv_ and overload the operator \verb_()_. The first one implements the sequential algorithm, while the second one is a wrapper that calls the other executable \verb_mpicore_, that performs the computation in parallel using MPI.
+  \item \verb_Plotter_: it must be passed a object of type \verb_LaplaceInv_ at construction time and provide methods that call it and then plot the output using \textit{GnuPlot}.
+\end{itemize}
+Its function \verb_main()_ is in \textit{start.cpp} and instanciates one of those objects depending on the parameters given by the user.
+
+\subsection{Problems interfacing MPI with the rest of the program}
+Making a global program whose executable contains MPI code would have been foolish since it would have used several mpi processes each time or would have required to launch it with \verb_mpirun_ in every case. Hence our decision to build a different executable to handle the MPI processing, and to launch it from the global program after forking.\\
+
+The problem then is to make those two programs communicate. We need this since the wrapper must pass arguments to it and retrieve output data from it.\\
+
+The first option we considered was to make the data transit by name Unix pipes. After long hours debugging, it appeared to be very painful to program in C++ (without using system calls directly), and might have raised problems since the distributed file system NFS is used in the lab environment.\\
+
+Thus, we decided to use a less elegant (but easier to program) solution: writing the input and output data down to normal files. The only problem with this approach is that the \verb_mpicore_ process needs a way to wake up the wrapper when it has done processing the data and has finished writing it to the output file. In our design, such a mechanism is performed by using TCP sockets: once it has launched the \verb_mpicore_ process, the wrapper opens a server socket on the loopback interface and waits for its child to connects to it, which trigers the reading of the output file, and then the plotting.
 
 \newpage
 
