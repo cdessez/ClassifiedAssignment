@@ -15,7 +15,7 @@
 \maketitle
 
 \section{Gathering the clues}
-The first thing we did was to analyse in depth the evidence given by our intel. Hopefully the engineers from Nukehavistan were kind enough to leave clues about the computer system.
+The first thing we did was to analyze in depth the evidence given by our intel. Hopefully the engineers from Nukehavistan were kind enough to leave clues about the computer system.
 
 The very first thing we did was to find the identity of the man portrayed on the system. We were able to process the face into the database of Interpol, hoping we will find a rogue scientist working for the Nukehavistan. Unfortunately no match were found. We then used the ReverseImages tool Q made for us and found that the man was \textit{Leonhard Euler}, portrayed on a 1957 stamp of the USSR. Such a link supposes that the Nukehavistan is a communist nation and so a major threat to the democracy all around the world.
 
@@ -39,7 +39,7 @@ The loop was almost complete. We knew what the algorithm was and what to code. T
 \begin{figure}[!h]
 \centering
 \includegraphics[width=10cm]{outputs.png}
-\caption{Reverse engineering inputs and ouptuts.}
+\caption{Reverse engineering inputs and outputs.}
 \label{reverse}
 \end{figure}
 
@@ -60,52 +60,77 @@ Every spy needs a good watch! If we look closely to the computer system, the sma
 
 \subsection{Parallel MPI algorithm}
 
-In order to accelerate what this machine does, we can use multiple processors in parallel. The program takes an array of data for input, and we call the algorithm for each data, so we propose two different methods to parallelize the implementation. In the first method we parallelize the algorithm by rearranging the sequential algorithm. In the second method, we divide the input in chunks, and call the sequential algorithm on each chunk.
+The program can be quite long when the size of the input increases. In order to accelerate what the machine does, we can use numerous processors in parallel. We call $N_p$ the number of processes. The program takes an vector of doubles as input, computes the algorithm for each data point to return an array of doubles as output. We propose two different methods to parallelize the implementation:
+
+\begin{itemize}
+
+\item parallelizing the algorithm by rearranging the sequential algorithm,
+
+\item dividing the input into chunks, and running in parallel the sequential algorithm on each chunk.
+
+\end{itemize}
 
 \subsubsection{Parallel version of the algorithm}
 
-In the sequential version of the algorithm, we have multiple sums. We would want to these sums in parallel but the problem is that each term of each sum depends on the previous sum and one or more other terms. So in order to parallelize the algorithm we have to come up with steps that are independant from each others.
+In the sequential version of the algorithm, we have numerous sums. We want to calculate these sums in parallel but the problem is that each term of each sum depends on the previous sum and one or more other terms. In order to parallelize the algorithm we have to come up with steps that are independent from each others.
 
-\subparagraph{Maths behind the parallelization}
-~~\\
-The calcul of Fun is the part of the algorithm we want to parallelize.
-\begin{equation}
-	sum = \frac{1}{2} *  \sum_{i=1}^{Ntr} (-1)^N*fnRf(X,i*H)
-\end{equation}
-\begin{equation}
-	SU(1) = sum
-\end{equation}
-\begin{equation}
-	SU(k + 1) = SU(K) + (-1)^N*fnRf(X,(Ntr + k)*H)
-\end{equation}
-\begin{equation}
-	Fun = \frac{U}{Ctot} * \sum_{i=1}^{M+1} \binom{M}{i}*SU(i)
-\end{equation}
-The problem if we want to parallelize the calculation of Fun this way is that each SU(i) needs SU(i-1) to be calculated.
-We can rewrite (3) this way :
-\begin{equation}
-	SU(k) = sum + \sum_{i=1}^{k-1} (-1)^{Ntr+k-1}*fnRf(X,(Ntr + k-1)*H)
-\end{equation}
-In this case each there are some value of fnRf that are used by multiple SU, so we lose time if we have to make these expensive calculation multiple times.
-From (4) and (5) we can rewrite a formulation for Fun :
-\begin{equation}
-	Fun = \frac{U}{Ctot} * \sum_{k=1}^{M+1} \binom{M+1}{k}*(sum + \sum_{i=1}^{k-1} (-1)^{Ntr+k-1}*fnRf(X,(Ntr + k-1)*H))
-\end{equation}
-We can change (6) into :
-\begin{equation}
-	S(1) = sum
-\end{equation}
-\begin{equation}
-	S(k) = (-1)^{Ntr+k-1}*fnRf(X,(Ntr + k-1)*H)
-\end{equation}
-\begin{equation}
-	Fun = U *\sum_{k=1}^{M+1}(S(k)*(1-\frac{ \sum_{i=1}^{k-1} \binom{M+1}{i}}{Ctot}))
-\end{equation}
-Then we can calculate each term of the sum in (9) in parallel.
+\subsubsection*{Maths behind the parallelization}
 
-\subparagraph{Implementation}
+The calculation of Fun is the part of the algorithm we want to parallelize.
+
+\begin{eqnarray}
+	sum &=& \frac{1}{2}   \sum_{i=1}^{Ntr} (-1)^{i}fnRf(X,iH)\\
+	SU(1) &=& sum  \\
+	SU(k + 1) &=& SU(K) + (-1)^{Ntr}fnRf(X,(Ntr + k)H) \label{SU(i)}\\
+	Fun &=&\frac{U}{Ctot} \sum_{i=1}^{M+1} \binom{M}{i-1}SU(i) \label{Fun}
+\end{eqnarray}
+
+We notice first that we can easily calculate $sum$ in parallel by calculate each term in parallel and then add them up. However, each $SU(i)$ needs $SU(i-1)$ to be calculated, so we must determine $Fun$ otherwise to make the algorithm.
+We can rewrite \eqref{SU(i)} this way :
+\begin{equation}
+	SU(k) = sum + \sum_{i=1}^{k-1} (-1)^{Ntr+k-1}fnRf(X,(Ntr + k-1)H)
+	\label{rewrite SU}
+\end{equation}
+In this case there are some values of $fnRf$ that are used by many $SU$, so we lose time when we compute these expensive calculations more than once.
+From \eqref{Fun} and \eqref{rewrite SU} we can rewrite a formulation for Fun :
+\begin{equation}
+	Fun =\displaystyle{ \frac{U}{Ctot}  \sum_{k=1}^{M+1} \binom{M}{k-1}\left(sum + \sum_{i=1}^{k-1} (-1)^{Ntr+k-1}fnRf(X,(Ntr + k-1)H)\right)}
+	\label{Fun2}
+\end{equation}
+We can change \eqref{Fun2} into :
+\begin{eqnarray}
+	S(1) &=& sum\\
+	S(k) &=& (-1)^{Ntr+k-1}fnRf(X,(Ntr + k-1)H)\\
+	Fun &=& \displaystyle{U \sum_{k=1}^{M+1}\left(S(k)(1-\frac{ \sum_{i=1}^{k-1} \binom{M}{i-1}}{Ctot})\right)} \label{Fun3}
+\end{eqnarray}
+Written this way, the terms of the sum in \eqref{Fun3} are independent. So we can calculate each one of them in parallel.
+
+\subsubsection*{Implementation}
+
+We use MPI to implement the parallel version of the algorithm. We set as master one of the processes, which will gather all the calculation results from the other processes and compute them to obtain the final result. For each time $t$ of the input data, we run the parallel algorithm. The master is the only one whic knows the input. Therefore the first step is to broadcast the $t$ to all the processes. Then the algorithm is made of two major steps :
+
+\begin{itemize}
+
+\item the calculation of $sum$. This expression contains $Ntr$ terms. Therefore each process calculates $\lfloor \frac{Ntr}{N_p}Ê\rfloor$ terms, and then we do a reduce operation and the master gets the sum of all the terms. Concretely, after the calculation of one term by the processes, we do a reduce operation and the master saves a partial sum, which it updates at each step. If $Ntr$ is not divisible by $N_p$, the master calculates the remaining terms of the sum. 
+
+\item the calculation of $Fun$. It contains $M+1$ terms, then in the same way as for $sum$ the processes evaluates $\lfloor \frac{M+1}{N_p}Ê\rfloor$ terms of the sum. Afterwards the MPI program does  a reduce operation and the master gets the total sum. It also deals with remaining terms if $M+1$ is not divisible by $N_p$.
+
+\end{itemize}
+
+Finally, the master returns the value of $Fun$, and the operation is repeated for all the input. 
 
 \subsubsection{Chunked method}
+The previous method performed a parallel calculation for each data point of the input. The chunked method does otherwise. It runs in parallel the sequential algorithm for different data points. We call $N_{input}$ the size of the input. The chunked method also uses a process as master, and is divided into there parts: 
+
+\begin{itemize}
+
+\item First the master, which is the only process knowing the input, allocates the amount of data to treat between all the processes. Each process has to compute the algorithm on a chunk of $\lfloor \frac{N_{input}}{N_p} \rfloor$ points. Therefore the master scatters the input points to the processes. 
+
+\item Then each process runs the sequential algorithm on the chunk of points that it has to handle by calling the operator of \verb_SeqLaplaceInv_. 
+
+\item Afterwards, we do a gather to put all the results into a vector on the master. Then the masters deals with the remaining points if $N_{input}$ is not divisible by $N_p$, computing the sequential algorithm on them. Finally it returns the output vector. 
+
+\end{itemize}
 
 \subsection{Parallel OpenMP algorithm}
 
