@@ -54,6 +54,7 @@ double SeqLaplaceInv::operator()(double t){
 }
 
 int SeqLaplaceInv::C(int k, int m){
+  // processes the binomial coefficient of k and m
   long res = 1; 
   const long mk = m - k;
   for (int i = m; i > k; i--)
@@ -64,6 +65,7 @@ int SeqLaplaceInv::C(int k, int m){
 }
 
 vector<double> SeqLaplaceInv::operator()(vector<double> &v){
+  // simple wrapper for operator()(double t) that print the type
   vector<double> res(v.size());
   double tbeg, tend;
   tbeg = time(0);

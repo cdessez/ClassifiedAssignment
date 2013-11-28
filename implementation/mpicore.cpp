@@ -28,9 +28,12 @@ enum ParallelType {
 };
 
 void notifyWrapperViaSocket(int port){
-  int fd, numbytes;   /* files descriptors */     
-  struct hostent *he;         /* structure that will get information about remote host */ 
-  struct sockaddr_in server;  /* server's address information */  
+  // This function opens a TCP client connection at 127.0.0.1:[port]
+  // in order to wake the wrapper up
+
+  int fd, numbytes;   // file descriptors
+  struct hostent *he;         // structure that will get information about remote host
+  struct sockaddr_in server;  // server's address information
 
   if ((fd=socket(AF_INET, SOCK_STREAM, 0))==-1){ 
     cerr << "socket() error" << endl; 
@@ -44,12 +47,11 @@ void notifyWrapperViaSocket(int port){
 
   server.sin_family = AF_INET; 
   server.sin_port = htons(port); 
-  server.sin_addr = *((struct in_addr *)he->h_addr);  /*he->h_addr passes "*he"'s info to "h_addr" */ 
-  //bzero(&(server.sin_zero),8); 
+  server.sin_addr = *((struct in_addr *)he->h_addr);
 
   if(connect(fd, (struct sockaddr *) &server, sizeof(struct sockaddr)) == -1){ 
     cerr << "connect() error" << endl; 
-    exit(EXIT_FAILURE); 
+    exit(EXIT_FAILURE);
   } 
   close(fd);
 }
@@ -64,7 +66,8 @@ int main(int argc, char **argv){
   int N, M, input_size; // arguments for the laplace inversion algorithm
   int ptype; // determine the type of computation
   int port; // used to send the signal to wake up the wrapper
-
+  
+  // Parse the arguments
   if (argc != 6){
     cerr << "Wrong call to mpicore: it takes 4 arguments (N, M, size of" 
           << "the input and wake up port)" << endl;
@@ -82,6 +85,7 @@ int main(int argc, char **argv){
 
   vector<double> input(0), output(0); // used only by master
 
+  // Init MPI
   MPI_Init(&argc, &argv);
   tbeg = MPI_Wtime();
   MPI_Comm_size(MPI_COMM_WORLD, &pool_size);
@@ -91,7 +95,8 @@ int main(int argc, char **argv){
   if (iammaster){
     input.resize(input_size);
     output.resize(input_size);
-    // code filling the vector input with the input values
+
+    // fill the vector input with the input values retrieved from a file
     ifstream finput(ifile.c_str(), ifstream::in);
     if (!finput){
       cerr << "Cannot open input file" << ifile << endl;
@@ -108,15 +113,19 @@ int main(int argc, char **argv){
   // MPI processing code
   switch(ptype){
     case MPI1 :
-      mpi1(input, output, N, M, input_size, my_rank, pool_size, iammaster, MASTER_RANK);
+      mpi1(input, output, N, M, input_size, my_rank, pool_size, 
+            iammaster, MASTER_RANK);
       break;
     case MPI2 :
-      mpi2(input, output, N, M, input_size, my_rank, pool_size, iammaster, MASTER_RANK);
+      mpi2(input, output, N, M, input_size, my_rank, pool_size, 
+            iammaster, MASTER_RANK);
       break;
     case MPI1_OPENMP :
+      cerr << "This version is not available" << endl;
       break;
     case MPI2_OPENMP :
-      mpi2_openmp(input, output, N, M, input_size, my_rank, pool_size, iammaster, MASTER_RANK);
+      mpi2_openmp(input, output, N, M, input_size, my_rank, pool_size, 
+            iammaster, MASTER_RANK);
       break;
     default :
       if(iammaster)
@@ -129,7 +138,7 @@ int main(int argc, char **argv){
     // MPI: the master should gather the output values in the right order in
     // the vector 'output'
     
-    // code sending the output values back to the main process
+    // send the output values back in a file
     ofstream foutput;
     foutput.open(ofile.c_str());
     if (!foutput.is_open()){

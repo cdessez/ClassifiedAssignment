@@ -18,6 +18,7 @@ class LaplaceInv {
   protected:
 
   protected:
+    // func is the function of which we want the Laplace transform inversion
     complex<double> (*func)(double,double);
 };
 

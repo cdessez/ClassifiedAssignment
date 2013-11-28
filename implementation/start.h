@@ -1,8 +1,6 @@
 #ifndef START_H
 #define START_H
 
-using namespace std;
-
 #include <iostream>
 #include <vector>
 #include <complex>
@@ -12,5 +10,7 @@ using namespace std;
 #include "SeqLaplaceInv.h"
 #include "MPILaplaceInv.h"
 #include "Plotter.h"
+
+using namespace std;
 
 #endif

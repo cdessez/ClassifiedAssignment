@@ -18,10 +18,10 @@ class SeqLaplaceInv : public LaplaceInv {
     void setDisplayTime(bool b);
   protected:
     int N;
-    vector<int> Cm;
+    vector<int> Cm; // the binomial coefficients
     int sum_Cm;
     int M;
-    bool displayTime;
+    bool displayTime; // whether or not the execution time is printed to cout
 
   private:
     inline int C(int k, int m);

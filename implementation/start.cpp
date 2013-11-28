@@ -19,7 +19,8 @@ void printHelp(){
 int main(int argc, char **argv) {
   
   LaplaceInv *func = NULL;
-
+  
+  // parses the arguments
   if (argc == 1){
     printHelp();
     return 0;
@@ -36,9 +37,8 @@ int main(int argc, char **argv) {
           return 0;
         }
         if (string(argv[++i]).compare("1") == 0){
-          ptype = MPI1;
         } else if (string(argv[i]).compare("2") == 0){
-          ptype = MPI2;
+          ptype += MPI2;
         } else {
           printHelp();
           return 0;
@@ -47,16 +47,18 @@ int main(int argc, char **argv) {
         ptype += 2;
       }
     }
+    if (ptype == MPI1_OPENMP)
+      ptype = MPI1;
     if (func == NULL)
       func = new MPILaplaceInv(ptype);
   }  
   
+  // Process and plots the result
   Plotter plotter(*func);
   vector<double> v;
   for(double t = 0.; t <= 12.01; t+=0.1){
     v.push_back(t);
   }
-
   plotter.plot(v);
 
   return 0;

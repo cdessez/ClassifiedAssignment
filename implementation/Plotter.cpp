@@ -27,10 +27,12 @@ void Plotter::plot(double tmin, double tmax, double tinc){
 void Plotter::plot(vector<double> v){
   
   vector<double> out = func(v);
-
+  
+  // Plot the function
   Gnuplot g1("f(t)");
   g1.set_style("lines").plot_xy(v,out,"Laplace Inversion");
 
+  // Plot a polarish clock like version of the output (just for fun)
   vector<double> x, y, cx, cy;
   for(int i = 0; i < v.size(); i++){
     double theta, r;
