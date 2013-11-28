@@ -3,6 +3,8 @@
 static double PI = atan(1)*4;
 static int defaultN = 100;
 static int defaultM = 15;
+static double A = 18.4;
+static double expAo2 = exp(A/2.);
 
 SeqLaplaceInv::SeqLaplaceInv(): LaplaceInv(), N(defaultN), 
         M(defaultM), Cm(defaultM+1), sum_Cm(0x1 << defaultM), 
@@ -27,7 +29,7 @@ SeqLaplaceInv::SeqLaplaceInv(complex<double> (*func)(double,double), int N,
 
 double SeqLaplaceInv::operator()(double t){
   const double A = 18.4;
-  const double U = exp(A/2.)/t;
+  const double U = expAo2/t;
   const double X = A/(2.*t);
   const double H = PI/t;
   double Sum = func(X,0.).real()/2.;
