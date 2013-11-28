@@ -56,7 +56,23 @@ Every spy needs a good watch! If we look closely to the computer system, the sma
 
 \section{Implementation}
 
+Since every good spy must be able to adapt and exploit their resources in the best possible way, they need a piece of software that is the fastest possible not only on an on-stage operation, but also when they are preparing the mission at the headquarters with access to the best super calculator in the world. This is why we have optimized this tremedous clock not only to run sequentially on a single machine, but also in parallel in several processes, multithreaded or not depending on the given option, distributed among a pool of machines.
+
 \subsection{Sequential algorithm}
+
+The first step building this powerful clock is to implement and optimize the sequential algorithm. We first make a rough copy of the algorithm from the research paper and then modified it to make it more efficient and more flexible.\\
+
+In the paper, the parameters \verb_N_ and \verb_M_ are hardcoded respectively to the values 15 and 11. That allow them to have a quite efficient processing and to hardcode the binomial coefficients. Those parameters determine the accuracy of the approximations done by the algorithm. After running a few tests, we realized that the more influent of those is \verb_N_ which we decided to set by default to $100$ (this also gives more computation to parallelize in the next steps). We have increased \verb_M_ a bit, up to $15$, to improve the accuracy, but also in anticipation of the parallelization which will use 16 machines.\\
+
+In order to plot the inverted Laplace transform, we need to run this algorithm many times to obtain enough points. Thus we have strived to mutualise as much as computation as possible. First the binomial coefficients are processed once and for all and saved to memory, as well as their sum which is in fact $2^M$ (hardcoded to $2048$ in the paper). Likewise, we process $exp(\frac{A}{2})$ only once for the whole set of points.\\
+
+Besides, we have little interest here in the truncation error estimate, so that we have got rid of the part of the code that processed it in the paper.\\
+
+We have also merged the last two loops. As a matter of fact, filling an array \verb_SU_ with one loop to get \verb_Avgsu_ by summing its elements in a second loop is unefficient because we can do both at the same time which reduces the loop administration overhead and allows us to keep only a \verb_double_ variable instead of the array \verb_SU_.\\
+
+We have also optimized the calculus of the variables \verb_i_ and \verb_Y_. In the paper they are computed with multiplications of float number, whereas there evolution corresponds to an incrementation by a fixed value at each iteration. Since in general an addition costs much less than a multiplication, this makes the loop faster. Notice there could be precision problems due to many successive foating point additions if \verb_M_ became much higher.\\
+
+We are not sure whether or not those optimizations are substantial compared to the call to the mystery function, but it cannot do any harm anyways. Furthermore, since our class \verb_SeqLaplaceInv_ takes the function to invert as an argument, it might end up being useful to invert other functions less costly than our mystery function.
 
 \subsection{Parallel MPI algorithm}
 
