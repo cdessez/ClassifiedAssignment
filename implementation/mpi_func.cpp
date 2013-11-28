@@ -26,6 +26,7 @@ void mpi1(vector<double> &input, vector<double> &output, int N, int M, int input
   
   const double A = 18.4;
   const double PI = atan(1)*4;
+  const double expAo2 = exp(A/2.);
 
   double t;
   double H, U, X, Y;
@@ -51,7 +52,7 @@ void mpi1(vector<double> &input, vector<double> &output, int N, int M, int input
     MPI_Bcast(&t, 1, MPI_DOUBLE, MASTER_RANK, MPI_COMM_WORLD);
 
     H = PI/t;
-    U = exp(A/2.)/t;
+    U = expAo2/t;
     X = A/(2.*t);
     Y = 0.;
 
