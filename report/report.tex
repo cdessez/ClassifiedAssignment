@@ -149,6 +149,15 @@ The previous method performed a parallel calculation for each data point of the 
 \end{itemize}
 
 \subsection{Parallel OpenMP algorithm}
+Once we were sure that our algorithms using MPI were properly working, we decided to use OpenMP as well in order to increase their speed. 
+
+\begin{itemize}
+
+\item The chunked method algorithm was very simple to parallelize using OpenMP. Since each process computes a chunk of inputs, we only needed to parallelize the \verb_for_ loops using the \verb_#pragma omp parallel for_ instruction. That way, the different threads compute separately each values and put them in the corresponding output vector.
+
+\item The parallel version of the sequential algorithm revealed itself to be extremely complicated to parallelize. Since we find MPI instructions in all the sections that could be parallelized using OpenMP, we were not able to correctly parallelize those sections. Here, we met a limit in the use of both MPI and OpenMP at the same time.
+
+\end{itemize}
 
 \newpage
 
