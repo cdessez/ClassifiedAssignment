@@ -6,14 +6,19 @@ static const string ifile = "in.txt";
 static const string ofile = "out.txt";
 static const string hostsfile = "hosts";
 static const int mpi_pool_size = 16;
-static const int port = rand() % 1000 + 10007;
+static int port = 10007;
 
 MPILaplaceInv::MPILaplaceInv(int ptype): LaplaceInv(), ptype(ptype), 
       N(defaultN), M(defaultM){
+  srand(time(NULL));
+  port += rand() % 1000;
 }
 
 MPILaplaceInv::MPILaplaceInv(int ptype, int N, int M): 
       LaplaceInv(), ptype(ptype), N(N), M(M){
+  srand(time(NULL));
+  port += rand() % 1000;
+
 }
 
 double MPILaplaceInv::operator()(double t){
