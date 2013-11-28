@@ -4,6 +4,7 @@
 
 #include "mpi.h"
 #include "mpi_func.h"
+#include "SeqLaplaceInv.h"
 
 using namespace std;
 
@@ -104,4 +105,32 @@ void mpi1(vector<double> &input, vector<double> &output, int N, int M, int input
       output[p] = U*Sum;
     }
   }
+}
+
+void mpi2(vector<double> &input, vector<double> &output, int N, int M, int input_size,
+ int my_rank, int pool_size, bool iammaster, int MASTER_RANK){
+
+  SeqLaplaceInv seqL(&L, N, M);
+  int chunk_size = input_size/pool_size;
+  MPI_Bcast(&chunk_size, 1, MPI_INT, MASTER_RANK, MPI_COMM_WORLD);
+  vector <double> input_chunk(chunk_size), output_chunk(chunk_size);
+
+  for(int i = 0; i < chunk_size; i++){
+    MPI_Scatter(&input[i*pool_size], 1, MPI_DOUBLE,
+	&input_chunk[i], 1, MPI_DOUBLE, MASTER_RANK, MPI_COMM_WORLD);
+  }
+
+  output_chunk = seqL(input_chunk);
+
+  for(int i = 0; i < chunk_size; i++){
+    MPI_Gather(&output_chunk[i], 1, MPI_DOUBLE,
+	&output[i*pool_size + my_rank], 1, MPI_DOUBLE, MASTER_RANK, MPI_COMM_WORLD);
+  }
+
+  if(iammaster){
+    for(int i = input_size - (input_size%chunk_size); i < input_size; i++){
+      output[i] = seqL(input[i]);
+    }
+  }
+
 }

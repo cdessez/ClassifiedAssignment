@@ -111,6 +111,7 @@ int main(int argc, char **argv){
       mpi1(input, output, N, M, input_size, my_rank, pool_size, iammaster, MASTER_RANK);
       break;
     case MPI2 :
+      mpi2(input, output, N, M, input_size, my_rank, pool_size, iammaster, MASTER_RANK);
       break;
     case MPI1_OPENMP :
       break;
