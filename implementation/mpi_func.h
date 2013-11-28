@@ -14,4 +14,11 @@ void mpi1(vector<double> &input, vector<double> &output, int N, int M, int input
 void mpi2(vector<double> &input, vector<double> &output, int N, int M, int input_size,
  int my_rank, int pool_size, bool iammaster, int MASTER_RANK);
 
+void mpi1_openmp(vector<double> &input, vector<double> &output, int N, int M, int input_size,
+ int my_rank, int pool_size, bool iammaster, int MASTER_RANK);
+
+void mpi2_openmp(vector<double> &input, vector<double> &output, int N, int M, int input_size,
+ int my_rank, int pool_size, bool iammaster, int MASTER_RANK);
+
+
 #endif

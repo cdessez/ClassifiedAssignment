@@ -15,7 +15,7 @@ EXE = start
 #####
 
 MPICXX = mpic++
-MPICXXFLAGS =
+MPICXXFLAGS = -fopenmp
 MPIOBJ = mpicore.o LaplaceInv.o SeqLaplaceInv.o mpi_func.o
 MPILIBS = mystery.o 
 MPIEXE = mpicore
