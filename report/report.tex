@@ -56,11 +56,11 @@ Every spy needs a good watch! If we look closely to the computer system, the sma
 
 \section{Implementation}
 
-Since every good spy must be able to adapt and exploit their resources in the best possible way, they need a piece of software that is the fastest possible not only on an on-stage operation, but also when they are preparing the mission at the headquarters with access to the best super calculator in the world. This is why we have optimized this tremedous clock not only to run sequentially on a single machine, but also in parallel in several processes, multithreaded or not depending on the given option, distributed among a pool of machines.
+Since every good spy must be able to adapt and exploit their resources in the best possible way, they need a piece of software that is the fastest possible not only on an on-stage operation, but also when they are preparing the mission at the headquarters with access to the best super calculator in the world. This is why we have optimized this tremendous clock not only to run sequentially on a single machine, but also in parallel in several processes, multithreaded or not depending on the given option, distributed among a pool of machines.
 
 \subsection{Sequential algorithm}
 
-The first step building this powerful clock is to implement and optimize the sequential algorithm. We first make a rough copy of the algorithm from the research paper and then modified it to make it more efficient and more flexible.\\
+The first step in building this powerful clock is to implement and optimize the sequential algorithm. We first made a rough copy of the algorithm from the research paper and then modified it to make it more efficient and more flexible.\\
 
 In the paper, the parameters \verb_N_ and \verb_M_ are hardcoded respectively to the values 15 and 11. That allow them to have a quite efficient processing and to hardcode the binomial coefficients. Those parameters determine the accuracy of the approximations done by the algorithm. After running a few tests, we realized that the more influent of those is \verb_N_ which we decided to set by default to $100$ (this also gives more computation to parallelize in the next steps). We have increased \verb_M_ a bit, up to $15$, to improve the accuracy, but also in anticipation of the parallelization which will use 16 machines.\\
 
@@ -76,7 +76,7 @@ We are not sure whether or not those optimizations are substantial compared to t
 
 \subsection{Parallel MPI algorithm}
 
-The program can be quite long when the size of the input increases. In order to accelerate what the machine does, we can use numerous processors in parallel. We call $N_p$ the number of processes. The program takes an vector of doubles as input, computes the algorithm for each data point to return an array of doubles as output. We propose two different methods to parallelize the implementation:
+The program can be quite long when the size of the input increases. In order to accelerate what the machine does, we can use numerous processors in parallel. We call $N_p$ the number of processes. The program takes a vector of doubles as input, computes the algorithm for each data point and return a vector of doubles as output. We propose two different methods to parallelize the implementation:
 
 \begin{itemize}
 
@@ -88,11 +88,11 @@ The program can be quite long when the size of the input increases. In order to 
 
 \subsubsection{Parallel version of the algorithm}
 
-In the sequential version of the algorithm, we have numerous sums. We want to calculate these sums in parallel but the problem is that each term of each sum depends on the previous sum and one or more other terms. In order to parallelize the algorithm we have to come up with steps that are independent from each others.
+In the sequential version of the algorithm, we have numerous sums. We want to calculate these sums in parallel but the problem is that each term of each sum depends on previous sums and one or more other terms. In order to parallelize the algorithm we have to come up with steps that are independent from each other.
 
 \subsubsection*{Maths behind the parallelization}
 
-The calculation of Fun is the part of the algorithm we want to parallelize.
+The calculation of $Fun$ is the part of the algorithm we want to parallelize.
 
 \begin{eqnarray}
 	sum &=& \frac{1}{2}   \sum_{i=1}^{Ntr} (-1)^{i}fnRf(X,iH)\\
@@ -101,7 +101,7 @@ The calculation of Fun is the part of the algorithm we want to parallelize.
 	Fun &=&\frac{U}{Ctot} \sum_{i=1}^{M+1} \binom{M}{i-1}SU(i) \label{Fun}
 \end{eqnarray}
 
-We notice first that we can easily calculate $sum$ in parallel by calculate each term in parallel and then add them up. However, each $SU(i)$ needs $SU(i-1)$ to be calculated, so we must determine $Fun$ otherwise to make the algorithm.
+We first notice that we can easily calculate $sum$ in parallel by calculating each term in parallel and then sum them. However, each $SU(i)$ needs $SU(i-1)$ to be calculated, so we must determine $Fun$ otherwise to make the algorithm.
 We can rewrite \eqref{SU(i)} this way :
 \begin{equation}
 	SU(k) = sum + \sum_{i=1}^{k-1} (-1)^{Ntr+k-1}fnRf(X,(Ntr + k-1)H)
@@ -127,9 +127,9 @@ We use MPI to implement the parallel version of the algorithm. We set as "master
 
 \begin{itemize}
 
-\item the calculation of $sum$. This expression contains $Ntr$ terms. Therefore each process calculates $\lfloor \frac{Ntr}{N_p}�\rfloor$ terms, and then we do a reduce operation and the master gets the sum of all the terms. Concretely, after the calculation of one term by the processes, we do a reduce operation and the master saves a partial sum, which it updates at each step. If $Ntr$ is not divisible by $N_p$, the master calculates the remaining terms of the sum. 
+\item the calculation of $sum$. This expression contains $Ntr$ terms. Therefore each process calculates $\lfloor \frac{Ntr}{N_p}�\rfloor$ terms, and then we perform a reduce operation and the master gets the sum of all the terms. Concretely, after the calculation of one term by the processes, we perform a reduce operation and the master saves a partial sum, which it updates at each step. If $Ntr$ is not divisible by $N_p$, the master calculates the remaining terms of the sum. 
 
-\item the calculation of $Fun$. It contains $M+1$ terms, then in the same way as for $sum$ the processes evaluates $\lfloor \frac{M+1}{N_p}�\rfloor$ terms of the sum. Afterwards the MPI program does  a reduce operation and the master gets the total sum. It also deals with remaining terms if $M+1$ is not divisible by $N_p$.
+\item the calculation of $Fun$. It contains $M+1$ terms, then in the same way as for $sum$ the processes evaluates $\lfloor \frac{M+1}{N_p}�\rfloor$ terms of the sum. Afterwards the MPI program does a reduce operation and the master gets the total sum. It also deals with remaining terms if $M+1$ is not divisible by $N_p$.
 
 \end{itemize}
 
@@ -142,7 +142,7 @@ The previous method performed a parallel calculation for each data point of the 
 
 \item First the master, which is the only process knowing the input, allocates the amount of data to treat between all the processes. Each process has to compute the algorithm on a chunk of $\lfloor \frac{N_{input}}{N_p} \rfloor$ points. Therefore the master scatters the input points to the processes. 
 
-\item Then each process runs the sequential algorithm on the chunk of points that it has to handle by calling the operator of \verb_SeqLaplaceInv_. 
+\item Then each process runs the sequential algorithm on the chunk of points that it has to process by calling the operator of \verb_SeqLaplaceInv_. 
 
 \item Afterwards, we do a gather to put all the results into a vector on the master. Then the masters deals with the remaining points if $N_{input}$ is not divisible by $N_p$, computing the sequential algorithm on them. Finally it returns the output vector. 
 
