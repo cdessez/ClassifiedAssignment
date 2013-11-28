@@ -12,6 +12,8 @@ void printHelp(){
   cout << "* MPITYPE 2 corresponds to the distribution of the values to";
   cout << "over multiples process (and thus over multiple machines)" << endl;
   cout << "* --openmp uses multithreading inside each mpi process" << endl;
+  cout << endl << "/!\\ this process should be launched on the machine";
+  cout << " pointed by the first line of the file \"hosts\"" << endl;
 }
 
 int main(int argc, char **argv) {
