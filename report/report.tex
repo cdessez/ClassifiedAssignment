@@ -274,7 +274,7 @@ Then try \verb_$ ./whattime_ to get help about the syntax to use to launch the p
 
 The general program contains 4 C++ classes:
 \begin{itemize}
-  \item \verb_LaplaceInv_: an abstract class that represents a Laplace transform inversion. It must be passed a function of the same signature as the mystery function \verb_L_. The virtual operator \verb_()_ called on a \verb_double_ value or a \verb_vector<double>_ is meant to return its image by the Laplace transform inversion of that function. It is supposed to be inherited multiple times for the different types of implementation of this inversion.
+  \item \verb_LaplaceInv_: an abstract class that represents an inverse Laplace transform. It must be passed a function of the same signature as the mystery function \verb_L_. The virtual operator \verb_()_ called on a \verb_double_ value or a \verb_vector<double>_ is meant to return its image by the inverse Laplace transform of that function. It is supposed to be inherited multiple times for the different types of implementation of this inverse.
   \item \verb_SeqLaplaceInv_ and \verb_MPILaplaceInv_: they inherit from \verb_LaplaceInv_ and overload the operator \verb_()_. The first one implements the sequential algorithm, whereas the second one is a wrapper that calls the other executable \verb_mpicore_, which performs the computation in parallel using MPI.
   \item \verb_Plotter_: it must be passed an object of type \verb_LaplaceInv_ at construction time and provides methods that call it and then plot the output using \textit{GnuPlot}.
 \end{itemize}
