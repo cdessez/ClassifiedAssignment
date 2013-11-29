@@ -10,6 +10,7 @@
 using namespace std;
 
 inline int C(int k, int m){
+  // binomial coefficient
   long res = 1; 
   const long mk = m - k;
   for (int i = m; i > k; i--)
@@ -19,10 +20,13 @@ inline int C(int k, int m){
   return static_cast<int>(res);
 }
 
+/***********************/
+/* MPI processing code */
+/***********************/
 
-// MPI processing code
 void mpi1(vector<double> &input, vector<double> &output, int N, int M, int input_size,
  int my_rank, int pool_size, bool iammaster, int MASTER_RANK){
+  // Parallelization of the algorithm itself
   
   const double A = 18.4;
   const double PI = atan(1)*4;
@@ -39,13 +43,13 @@ void mpi1(vector<double> &input, vector<double> &output, int N, int M, int input
   double f_k;
   double sum_cj[M+1];
 
-  //compute sum_cj (partial sums of C(i,M))
+  // Compute sum_cj (partial sums of C(i,M))
   sum_cj[0] = 0.;
   for(int i = 1; i < M+1; i++){
     sum_cj[i] = sum_cj[i-1] + C(i,M);
   }
 
-  //compute for each point
+  // Compute for each point
   for(int p = 0; p < input_size; p++){
     if(iammaster){
       t = input[p];
@@ -110,13 +114,14 @@ void mpi1(vector<double> &input, vector<double> &output, int N, int M, int input
 
 void mpi2(vector<double> &input, vector<double> &output, int N, int M, int input_size,
  int my_rank, int pool_size, bool iammaster, int MASTER_RANK){
+  // Chunked method of parallelization
 
   SeqLaplaceInv seqL(&L, N, M);
   int chunk_size = input_size/pool_size;
   MPI_Bcast(&chunk_size, 1, MPI_INT, MASTER_RANK, MPI_COMM_WORLD);
   vector <double> input_chunk(chunk_size), output_chunk(chunk_size);
 
-  //we divide input in pool_size vectors of size chunk_size
+  // We divide input in pool_size vectors of size chunk_size
   for(int i = 0; i < chunk_size; i++){
     MPI_Scatter(&input[i*pool_size], 1, MPI_DOUBLE,
 	&input_chunk[i], 1, MPI_DOUBLE, MASTER_RANK, MPI_COMM_WORLD);
@@ -124,13 +129,13 @@ void mpi2(vector<double> &input, vector<double> &output, int N, int M, int input
 
   output_chunk = seqL(input_chunk);
 
-  //we gather the output_chunk vectors into output
+  // We gather the output_chunk vectors into output
   for(int i = 0; i < chunk_size; i++){
     MPI_Gather(&output_chunk[i], 1, MPI_DOUBLE,
 	&output[i*pool_size + my_rank], 1, MPI_DOUBLE, MASTER_RANK, MPI_COMM_WORLD);
   }
 
-  //compute the remaining values
+  // Compute the remaining values
   if(iammaster){
     for(int i = input_size - (input_size%chunk_size); i < input_size; i++){
       output[i] = seqL(input[i]);
@@ -144,7 +149,7 @@ void mpi2_openmp(vector<double> &input, vector<double> &output, int N, int M, in
  int my_rank, int pool_size, bool iammaster, int MASTER_RANK){
 
 
-  //8 cores : 2 threads per core
+  // 8 cores : 2 threads per core
   omp_set_num_threads(16);
 
   SeqLaplaceInv seqL(&L, N, M);
@@ -152,7 +157,7 @@ void mpi2_openmp(vector<double> &input, vector<double> &output, int N, int M, in
   MPI_Bcast(&chunk_size, 1, MPI_INT, MASTER_RANK, MPI_COMM_WORLD);
   vector <double> input_chunk(chunk_size), output_chunk(chunk_size);
 
-  //we divide input in pool_size vectors of size chunk_size
+  // We divide input in pool_size vectors of size chunk_size
   for(int i = 0; i < chunk_size; i++){
     MPI_Scatter(&input[i*pool_size], 1, MPI_DOUBLE,
 	&input_chunk[i], 1, MPI_DOUBLE, MASTER_RANK, MPI_COMM_WORLD);
@@ -164,13 +169,13 @@ void mpi2_openmp(vector<double> &input, vector<double> &output, int N, int M, in
   }
 
 
-  //we gather the output_chunk vectors into output
+  // We gather the output_chunk vectors into output
   for(int i = 0; i < chunk_size; i++){
     MPI_Gather(&output_chunk[i], 1, MPI_DOUBLE,
 	&output[i*pool_size + my_rank], 1, MPI_DOUBLE, MASTER_RANK, MPI_COMM_WORLD);
   }
 
-  //we compute the remaining values
+  // We compute the remaining values
   if(iammaster){
     #pragma omp parallel for
     for(int i = input_size - (input_size%chunk_size); i < input_size; i++){
