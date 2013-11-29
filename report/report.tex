@@ -32,7 +32,7 @@ The text below the clock is in french. As we are french, we perfectly understood
 
 We then took a look to the two sets of coordinates. The set along the board points to the lovely village of \textit{Beaumont-en-Auge} in France. Among the famous people born in this town, one stands out. \textit{Pierre Simon de Laplace} was a mathematician and his work could have highly interested the Nukehavistan. The second coordinates confirmed our idea : it points near the \textit{Laplace} RER station in Paris. We don't believe in coincidence. Laplace's work is the key of the system. The power to the minus one on the second set of coordinates strengthens our assumption about the \textit{inverter}.
 
-We finally called the technical hotline. Since it is a charged number, we joined the bill at the end of the report. The technical hotline is only an answerbot. We tested if it was telling the truth by asking it the answer to the Ultimate Question of Life, the Universe and Everything. Since it answered 42, we assumed the bot was powerful enough to answer our upcoming questions\footnote{This raises serious issues about the advanced level of Nukehavistan in the Computer Science field. Maybe we should applied for a PhD in their university.}. When we asked what was in the box, it said \textit{Numerical Inversion of Laplace Transforms of Probability Distributions}. A quick and efficient DuckDuckGo search -- we made sure we weren't tracked -- pointed us to a research paper from 1995, presenting an algorithm using the Euler method for inverting Laplace transforms.
+We finally called the technical hotline. Since it is a charged number, we joined the bill at the end of the report. The technical hotline is only an answerbot. We tested if it was telling the truth by asking it the answer to the Ultimate Question of Life, the Universe and Everything. Since it answered 42, we assumed the bot was powerful enough to answer our upcoming questions\footnote{This raises serious issues about the advanced level of Nukehavistan in the Computer Science field. Maybe we should apply for a PhD in their university.}. When we asked what was in the box, it said \textit{Numerical Inversion of Laplace Transforms of Probability Distributions}. A quick and efficient DuckDuckGo search -- we made sure we weren't tracked -- pointed us to a research paper from 1995, presenting an algorithm using the Euler method for inverting Laplace transforms.
 
 The loop was almost complete. We knew what the algorithm was and what to code. The only thing we didn't know was what the program was actually doing. We tried to reverse engineer the \textit{mystery.o} file. We obtained some strange figures.
 
@@ -56,7 +56,7 @@ Every spy needs a good watch! If we look closely to the computer system, the sma
 
 \section{Implementation}
 
-Since every good spy must be able to adapt and exploit their resources in the best possible way, they need a piece of software that is the fastest possible not only on an on-stage operation, but also when they are preparing the mission at the headquarters with access to the best super calculator in the world. This is why we have optimized this tremendous clock not only to run sequentially on a single machine, but also in parallel in several processes, multithreaded or not depending on the given option, distributed among a pool of machines.
+Since every good spy must be able to adapt and exploit their resources in the best possible way, they need a piece of software that is the fastest possible not only for an on-stage operation, but also when they are preparing the mission at the headquarters with access to the best super calculator in the world. This is why we have optimized this tremendous clock not only to run sequentially on a single machine, but also in parallel over several processes, multithreaded or not (depending on the given option), and distributed among a pool of machines.
 
 \subsection{Sequential algorithm}
 
@@ -76,7 +76,7 @@ We are not sure whether or not those optimizations are substantial compared to t
 
 \subsection{Parallel MPI algorithm}
 
-The program can be quite long when the size of the input increases. In order to accelerate what the machine does, we can use numerous processors in parallel. We call $N_p$ the number of processes. The program takes a vector of doubles as input, computes the algorithm for each data point and return a vector of doubles as output. We propose two different methods to parallelize the implementation:
+The program can be quite long when the size of the input increases. In order to accelerate what the machine does, we can use numerous processors in parallel. We call $N_p$ the number of processes. The program takes a vector of \verb_double_ as input, computes the algorithm for each data point and return a vector of \verb_double_ as output. We propose two different methods to parallelize the implementation:
 
 \begin{itemize}
 
@@ -86,7 +86,7 @@ The program can be quite long when the size of the input increases. In order to 
 
 \end{itemize}
 
-In both implementations, every process has to treat a certain amount of data. If we call $N_T$ the size of the total amount of data, each processor will treat a chunk of size $\lfloor \frac{N_T}{N_p} \rfloor$, and the "master" processor will treat the remaining $N_T-\lfloor \frac{N_T}{N_p} \rfloor$. It is not the most efficient way of handling the problem, but it is much easier to implement, because each processor except the master has the same amount of data to treat. 
+In both implementations, every process has to treat a certain amount of data. If we call $N_T$ the size of the total amount of data, each processor will treat a chunk of size $\lfloor \frac{N_T}{N_p} \rfloor$, and the "master" processor will treat the remaining $N_T-\lfloor \frac{N_T}{N_p} \rfloor$. It is not the most efficient way of handling the problem (even though in most cases the difference is negligible), but it is much easier to implement, because each processor except the master has the same amount of data to treat. 
 
 \subsubsection{Parallel version of the algorithm}
 
@@ -103,13 +103,13 @@ The calculation of $Fun$ is the part of the algorithm we want to parallelize.
 	Fun &=&\frac{U}{Ctot} \sum_{i=1}^{M+1} \binom{M}{i-1}SU(i) \label{Fun}
 \end{eqnarray}
 
-We first notice that we can easily calculate $sum$ in parallel by calculating each term in parallel and then sum them. However, each $SU(i)$ needs $SU(i-1)$ to be calculated, so we must determine $Fun$ otherwise to make the algorithm.
+We first notice that we can easily calculate $sum$ in parallel by calculating each term in parallel and then summing them. However, each $SU(i)$ needs $SU(i-1)$ to be calculated, so we must determine $Fun$ differently to design the algorithm.
 We can rewrite \eqref{SU(i)} this way :
 \begin{equation}
 	SU(k) = sum + \sum_{i=1}^{k-1} (-1)^{Ntr+k-1}fnRf(X,(Ntr + k-1)H)
 	\label{rewrite SU}
 \end{equation}
-In this case there are some values of $fnRf$ that are used by many $SU$, so we lose time when we compute these expensive calculations more than once.
+In this case there are some values of $fnRf$ that are used by many $SU$, so that we lose time when we compute these expensive calculations more than once.
 From \eqref{Fun} and \eqref{rewrite SU} we can rewrite a formulation for Fun :
 \begin{equation}
 	Fun =\displaystyle{ \frac{U}{Ctot}  \sum_{k=1}^{M+1} \binom{M}{k-1}\left(sum + \sum_{i=1}^{k-1} (-1)^{Ntr+k-1}fnRf(X,(Ntr + k-1)H)\right)}
@@ -125,13 +125,13 @@ Written this way, the terms of the sum in \eqref{Fun3} are independent. So we ca
 
 \subsubsection*{Implementation}
 
-We use MPI to implement the parallel version of the algorithm. We set as "master" one of the processes. It will gather all the calculation results from the other processes and compute them to obtain the final result. For each time $t$ of the input data, we run the parallel algorithm. The master is the only process that knows the input. Therefore the first step is to broadcast the $t$ to all the processes. Then the algorithm is made of two major steps :
+We use MPI to implement the parallel version of the algorithm. We set as "master" one of the processes. It will gather all the calculation results from the other processes and compute them to obtain the final result. For each value $t$ of the input data, we run the parallel algorithm. The master is the only process that knows the input. Therefore the first step is to broadcast the $t$ to all the processes. Then the algorithm is made of two major steps :
 
 \begin{itemize}
 
-\item the calculation of $sum$. This expression contains $Ntr$ terms. Therefore each process calculates $\lfloor \frac{Ntr}{N_p}\rfloor$ terms, and then we perform a reduce operation and the master gets the sum of all the terms. Concretely, after the calculation of one term by the processes, we perform a reduce operation and the master saves a partial sum, which it updates at each step. If $Ntr$ is not divisible by $N_p$, the master calculates the remaining terms of the sum. 
+\item the calculation of $sum$. This expression contains $Ntr$ terms. Therefore each process calculates $\lfloor \frac{Ntr}{N_p}\rfloor$ terms, and then we perform a \verb_Reduce_ operation and the master gets the sum of all the terms. Concretely, after the calculation of one term by the processes, we perform a \verb_Reduce_ operation and the master saves a partial sum, which it updates at each step. If $Ntr$ is not divisible by $N_p$, the master calculates the remaining terms of the sum. 
 
-\item the calculation of $Fun$. It contains $M+1$ terms, then in the same way as for $sum$ the processes evaluates $\lfloor \frac{M+1}{N_p}\rfloor$ terms of the sum. Afterwards the MPI program does a reduce operation and the master gets the total sum. It also deals with remaining terms if $M+1$ is not divisible by $N_p$.
+\item the calculation of $Fun$. It contains $M+1$ terms, then in the same way as for $sum$ the processes evaluates $\lfloor \frac{M+1}{N_p}\rfloor$ terms of the sum. Afterwards the MPI program does a \verb_Reduce_ operation and the master gets the total sum. It also deals with remaining terms if $M+1$ is not divisible by $N_p$.
 
 \end{itemize}
 
@@ -142,30 +142,30 @@ The previous method performed a parallel calculation for each data point of the 
 
 \begin{itemize}
 
-\item First the master, which is the only process knowing the input, allocates the amount of data to treat between all the processes. Each process has to compute the algorithm on a chunk of $\lfloor \frac{N_{input}}{N_p} \rfloor$ points. Therefore the master scatters the input points to the processes. 
+\item First the master, which is the only process knowing the input, allocates to all the processes the amount of data to be treated. Each process has to compute the algorithm on a chunk of $\lfloor \frac{N_{input}}{N_p} \rfloor$ points. Therefore the master scatters the input points to the processes. 
 
-\item Then each process runs the sequential algorithm on the chunk of points that it has to process by calling the operator of \verb_SeqLaplaceInv_. 
+\item Then each process runs the sequential algorithm on the chunk of points that it has to process by calling the operator \verb_()_ of \verb_SeqLaplaceInv_. 
 
-\item Afterwards, we do a gather to put all the results into a vector on the master. Then the masters deals with the remaining points if $N_{input}$ is not divisible by $N_p$, computing the sequential algorithm on them. Finally it returns the output vector. 
+\item Afterwards, we do a \verb_Gather_ to put all the results into a vector on the master. Then the masters deals with the remaining points if $N_{input}$ is not divisible by $N_p$, by computing the sequential algorithm on them. Finally it returns the output vector. 
 
 \end{itemize}
 
-\subsection{Parallel OpenMP algorithm}
+\subsection{Addition of OpenMP parallelization}
 Once we were sure that our algorithms using MPI were properly working, we decided to use OpenMP as well in order to increase their speed. 
 
 \begin{itemize}
 
 \item The chunked method algorithm was very simple to parallelize using OpenMP. Since each process computes a chunk of inputs, we only needed to parallelize the \verb_for_ loops using the \verb_#pragma omp parallel for_ instruction. That way, the different threads compute separately each values and put them in the corresponding output vector.
 
-\item The parallel version of the sequential algorithm revealed itself to be extremely complicated to parallelize. Since we find MPI instructions in all the sections that could be parallelized using OpenMP, we were not able to correctly parallelize those sections. Here, we met a limit in the use of both MPI and OpenMP at the same time.
+\item The parallel version of the sequential algorithm revealed itself to be extremely complicated to parallelize. Since we find MPI instructions in all the sections that could be parallelized using OpenMP, we were not able to correctly parallelize those sections. Here, we reach a limit in the use of both MPI and OpenMP at the same time.
 
 \end{itemize}
 
 \subsection{Performance analysis}
 
-After implementing several solutions of the problem, we compare in this section their performances. The parameters that can be set are $N$, $M$ and the size of the input. As previously mentioned, $N$ and $M$ influence the accuracy of the solution. It is not useful to make them really large, and there is a value above which the gain in precision is negligible. Therefore we define in all our implements $N=100$ and $M=15$, and we only study the influence of the input size on the performance.\\
+After implementing several solutions of the problem, we compare in this section their performances. The parameters that can be set are $N$, $M$ and the size of the input. As previously mentioned, $N$ and $M$ influence the accuracy of the solution. Making them really large is not useful since there is a value above which the gain in precision is negligible (above all to make the clock readable). Therefore we set $N=100$ and $M=15$ in all out implementations, and we only study the influence of the input size on the performance.\\
 
-The secret machine is a clock, therefore the input should be between 0 and 12. We then define the $step$, which corresponds to the interval between two points of the input. For example, for $step$ equal to 0.1 there are 121 points in the input data. We obtain in Table~\ref{table:comparison} the performance of our implementations, defined as the time spent to complete the calculation, for several $steps$. $MPI_1$ corresponds to the parallelization of the algorithm, $MPI_2$ to the chunked method and $MPI_{2O}$ to the chunked method with OpenMP. The results are given in seconds.
+The secret machine is a clock, therefore the input should be between 0 and 12. We then define the $step$, which corresponds to the interval between two points of the input. For example, for $step$ equal to $0.1$ there are 121 points in the input data. We obtain in Table~\ref{table:comparison} the performance of our implementations, defined as the time spent to complete the calculation, for several $steps$. $MPI_1$ corresponds to the parallelization of the algorithm, $MPI_2$ to the chunked method and $MPI_{2O}$ to the chunked method with OpenMP. The results are given in seconds.
 
 \begin{table}[h]
 \centering
@@ -182,12 +182,18 @@ The secret machine is a clock, therefore the input should be between 0 and 12. W
    $MPI_{2O}(s)$ & 0.77 & 1.07 & 4.37 & 5.65 & 25.25\\
   \hline
   \end{tabular}
-\caption{\label{table:comparison} Performance of the different implementations for many sizes of input}
+\caption{\label{table:comparison} Execution time of the different implementations measured for  many sizes of input}
 \end{table}
 
-In light of this results, we can make several observations. First the parallelization always gives a better performance than the sequential implementation, which explains the great importance of our secret mission. Then the increase of time spent in the calculation is approximately proportional to the increase of the input size, except for the $MPI_{2O}$ with small steps. It shows that some communication costs cannot be reduced, even with a small amount of data to treat. We can also notice that the chunked method is better than the parallelization of the algorithm in every case. It may be explained by the fact that the chunked method requires less communication between the processes, because they only exchange information twice, at the beginning and at the end of the calculation. However, in the parallelization of the algorithm, the processes communicates several times for the calculation of every point. Finally, the use of OpenMP improves the efficiency of the program, allowing the program to be parallelize again on each process. \\
+In light of this results, we can make several observations. First we observe that the parallelization always gives a better performance than the sequential implementation, which reinforces the great importance of our secret mission. 
 
-We compute in Table~\ref{table:efficiency} the speed-up and the efficiency of the three parallel implementation for different steps. For $MPI_1$ and $MPI_2$ we parallelize the program on 16 computers, so there are 16 processors. But for the $MPI_{2O}$, we have 8 cores, on which we run 16 threads. So they are 128 processors. That explains the relatively bad results for the efficiency of $MPI_{2O}$. 
+Besides, the amount of time spent in the calculation is approximately proportional to the input size, except for the $MPI_{2O}$ with small steps. It shows that some communication costs cannot be reduced, even with a small amount of data to treat. We also notice that the chunked method is better than the parallelization of the algorithm in every case. 
+
+It may be explained by the fact that the chunked method requires less communication between the processes, because they only exchange information twice, at the beginning and at the end of the calculation. Indeed, in the parallelization of the algorithm itself, the processes do communicate several times while processing each single point. 
+
+Finally, the use of OpenMP improves the efficiency of the program, allowing the program to be parallelize again on each process. \\
+
+We compute in Table~\ref{table:efficiency} the speed-up and the efficiency of the three parallel implementations for different step values. For $MPI_1$ and $MPI_2$ we parallelize the program on 16 computers, so there are 16 processors. But for the $MPI_{2O}$, we have 8 cores, on which we run 16 threads. So they are 128 processors. That explains the relatively bad results for the efficiency of $MPI_{2O}$. 
 
 \begin{table}[h]
 \centering
@@ -213,7 +219,7 @@ We compute in Table~\ref{table:efficiency} the speed-up and the efficiency of th
 \caption{\label{table:efficiency} efficiency and speed-up of the different implementations}
 \end{table}
 
-$MPI_{2O}$ is obviously the fastest implementation but he is less efficient than $MPI_2$.
+$MPI_{2O}$ is obviously the fastest implementation although it is less efficient than $MPI_2$.
 
 \section{Conclusion}
 Thanks to the parallel implementation, we manage to copy and surpass Nukehavistan technology. We achieve the same results in different and efficient ways.
@@ -226,7 +232,7 @@ Thanks to the parallel implementation, we manage to copy and surpass Nukehavista
 \end{figure}
 
 
-But as we said before, we are French and French are all about beauty and class. The output of the program is very difficult to read, since it is very uncommon. Our spies want to act as quick as possible. We can't conceive that they might lose some time reading time. Thus we tweak the output so that it is more readable.
+But as we said before, we are French and French are all about beauty and class. The output of the program is very difficult to read, since it is very uncommon. Our spies want to act as quick as possible. We cannot conceive that they might lose some time reading time. Thus we tweak the output so that it is more readable.
 
 \begin{figure}[!h]
 \centering
@@ -235,12 +241,12 @@ But as we said before, we are French and French are all about beauty and class. 
 \label{clock2}
 \end{figure}
 
-This way, we are sure that our spies will have the best equipment while they're on-stage.
+This way, we are sure that our spies will have the best equipment while they are on-stage.
 
 \begin{figure}[!h]
 \centering
 \includegraphics[width=5cm]{clock3.png}
-\caption{And we can't say we worked off the clock}
+\caption{And we cannot say we worked off the clock}
 \label{clock3}
 \end{figure}
 
@@ -256,26 +262,26 @@ The main part of the project is in the repository \verb_implementation/_.
 
 First you need to compile the programs. A complete \textit{Makefile} is provided so that you only need the command \verb_$ make_.\\
 
-Then try \verb_./whattime_ to get help about the syntax to use to launch the program.
+Then try \verb_$ ./whattime_ to get help about the syntax to use to launch the program.
 
 \subsection{Overall architecture}
 
 The general program contains 4 C++ classes:
 \begin{itemize}
-  \item \verb_LaplaceInv_: an abstract class that represents a Laplace transform inversion. It must be passed a function of the same signature as the mystery function \verb_L_. The virtual operator \verb_()_ called on a \verb_double_ value or a \verb_vector<double>_ is meant to return its image by the Laplace transform inversion of that function. It is supposed to be inherited multiple times for the different type of implementation of this inversion.
-  \item \verb_SeqLaplaceInv_ and \verb_MPILaplaceInv_: inherit from \verb_LaplaceInv_ and overload the operator \verb_()_. The first one implements the sequential algorithm, while the second one is a wrapper that calls the other executable \verb_mpicore_, that performs the computation in parallel using MPI.
-  \item \verb_Plotter_: it must be passed a object of type \verb_LaplaceInv_ at construction time and provide methods that call it and then plot the output using \textit{GnuPlot}.
+  \item \verb_LaplaceInv_: an abstract class that represents a Laplace transform inversion. It must be passed a function of the same signature as the mystery function \verb_L_. The virtual operator \verb_()_ called on a \verb_double_ value or a \verb_vector<double>_ is meant to return its image by the Laplace transform inversion of that function. It is supposed to be inherited multiple times for the different types of implementation of this inversion.
+  \item \verb_SeqLaplaceInv_ and \verb_MPILaplaceInv_: they inherit from \verb_LaplaceInv_ and overload the operator \verb_()_. The first one implements the sequential algorithm, whereas the second one is a wrapper that calls the other executable \verb_mpicore_, which performs the computation in parallel using MPI.
+  \item \verb_Plotter_: it must be passed an object of type \verb_LaplaceInv_ at construction time and provides methods that call it and then plot the output using \textit{GnuPlot}.
 \end{itemize}
 Its function \verb_main()_ is in \textit{start.cpp} and instanciates one of those objects depending on the parameters given by the user.
 
 \subsection{Problems interfacing MPI with the rest of the program}
-Making a global program whose executable contains MPI code would have been foolish since it would have used several mpi processes each time or would have required to launch it with \verb_mpirun_ in every case. Hence our decision to build a different executable to handle the MPI processing, and to launch it from the global program after forking.\\
+Making a global program whose executable contains MPI code would be foolish since it would use several MPI processes each time or would require to be launched with \verb_mpirun_ in every case. Hence our decision to build a different executable to handle the MPI processing, and to launch it from the global program after forking.\\
 
-The problem then is to make those two programs communicate. We need this since the wrapper must pass arguments to it and retrieve output data from it.\\
+The problem then is to make those two programs communicate. We need this since the wrapper must pass arguments to its child and retrieve output data from it.\\
 
-The first option we considered was to make the data transit by name Unix pipes. After long hours debugging, it appeared to be very painful to program in C++ (without using system calls directly), and might have raised problems since the distributed file system NFS is used in the lab environment.\\
+The first option we considered was to make the data transit by name Unix pipes. After long hours of debug, such mechanisms appeared to be very painful to program in C++ (without using system calls directly), and might have raised problems since the distributed file system NFS is used in the lab environment.\\
 
-Thus, we decided to use a less elegant (but easier to program) solution: writing the input and output data down to normal files. The only problem with this approach is that the \verb_mpicore_ process needs a way to wake up the wrapper when it has done processing the data and has finished writing it to the output file. In our design, such a mechanism is performed by using TCP sockets: once it has launched the \verb_mpicore_ process, the wrapper opens a server socket on the loopback interface and waits for its child to connects to it, which trigers the reading of the output file, and then the plotting.
+Thus, we decided to use a less elegant (but easier to program) solution: writing the input and output data down to normal files. The only problem with this approach is that the \verb_mpicore_ process needs a way to wake the wrapper up when it is done processing the data and has finished writing the result to the output file. In our design, such a mechanism is performed by using TCP sockets: once it has launched the \verb_mpicore_ process, the wrapper opens a server socket on the loopback interface and waits for its child to connect to it, which trigers the reading of the output file, and then the plotting.
 
 \newpage
 
