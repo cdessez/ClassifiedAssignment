@@ -163,7 +163,7 @@ Once we were sure that our algorithms using MPI were properly working, we decide
 
 \subsection{Performance analysis}
 
-After implementing several solutions of the problem, we compare in this section their performance. The parameters that can be set are $N$, $M$ and the size of the input. As previously mentioned, $N$ and $M$ influence the accuracy of the solution. It is not useful to make them really big, and there is a value above which the gain in precision is negligible. Therefore we define in all our implements $N=100$ and $M=15$, and we only study the influence of the input size on the performance.\\
+After implementing several solutions of the problem, we compare in this section their performances. The parameters that can be set are $N$, $M$ and the size of the input. As previously mentioned, $N$ and $M$ influence the accuracy of the solution. It is not useful to make them really large, and there is a value above which the gain in precision is negligible. Therefore we define in all our implements $N=100$ and $M=15$, and we only study the influence of the input size on the performance.\\
 
 The secret machine is a clock, therefore the input should be between 0 and 12. We then define the $step$, which corresponds to the interval between two points of the input. For example, for $step$ equal to 0.1 there are 121 points in the input data. We obtain in Table~\ref{table:comparison} the performance of our implementations, defined as the time spent to complete the calculation, for several $steps$. $MPI_1$ corresponds to the parallelization of the algorithm, $MPI_2$ to the chunked method and $MPI_{2O}$ to the chunked method with OpenMP. The results are given in seconds.
 
@@ -214,6 +214,35 @@ We compute in Table~\ref{table:efficiency} the speed-up and the efficiency of th
 \end{table}
 
 $MPI_{2O}$ is obviously the fastest implementation but he is less efficient than $MPI_2$.
+
+\section{Conclusion}
+Thanks to the parallel implementation, we manage to copy and surpass Nukehavistan technology. We achieve the same results in different and efficient ways.
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=5cm]{clock1.png}
+\caption{Output of our program}
+\label{clock1}
+\end{figure}
+
+
+But as we said before, we are French and French are all about beauty and class. The output of the program is very difficult to read, since it is very uncommon. Our spies want to act as quick as possible. We can't conceive that they might lose some time reading time. Thus we tweak the output so that it is more readable.
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=10cm]{clock2.png}
+\caption{Left the clock; Right the basic output.}
+\label{clock2}
+\end{figure}
+
+This way, we are sure that our spies will have the best equipment while they're on-stage.
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=5cm]{clock3.png}
+\caption{And we can't say we worked off the clock}
+\label{clock3}
+\end{figure}
 
 \newpage
 
