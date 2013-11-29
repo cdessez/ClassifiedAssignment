@@ -62,7 +62,7 @@ Since every good spy must be able to adapt and exploit their resources in the be
 
 The first step in building this powerful clock is to implement and optimize the sequential algorithm. We first made a rough copy of the algorithm from the research paper and then modified it to make it more efficient and more flexible.\\
 
-In the paper, the parameters \verb_N_ and \verb_M_ are hardcoded respectively to the values 15 and 11. That allow them to have a quite efficient processing and to hardcode the binomial coefficients. Those parameters determine the accuracy of the approximations done by the algorithm. After running a few tests, we realized that the more influent of those is \verb_N_ which we decided to set by default to $100$ (this also gives more computation to parallelize in the next steps). We have increased \verb_M_ a bit, up to $15$, to improve the accuracy, but also in anticipation of the parallelization which will use 16 machines.\\
+In the paper, the parameters \verb_N_ and \verb_M_ are hardcoded respectively to the values 15 and 11. That allows them to have a quite efficient processing and to hardcode the binomial coefficients. Those parameters determine the accuracy of the approximations done by the algorithm. After running a few tests, we realized that the more influent of those is \verb_N_ which we decided to set by default to $100$ (this also gives more computation to parallelize in the next steps). We have increased \verb_M_ a bit, up to $15$, to improve the accuracy, but also in anticipation of the parallelization which will use 16 machines.\\
 
 In order to plot the inverted Laplace transform, we need to run this algorithm many times to obtain enough points. Thus we have strived to mutualise as much computation as possible. First the binomial coefficients are processed once and for all and saved to memory, as well as their sum which is in fact $2^M$ (hardcoded to $2048$ in the paper). Likewise, we process $exp(\frac{A}{2})$ only once for the whole set of points.\\
 
@@ -85,6 +85,8 @@ The program can be quite long when the size of the input increases. In order to 
 \item dividing the input into chunks, and running in parallel the sequential algorithm on each chunk.
 
 \end{itemize}
+
+In both implementations, every process has to treat a certain amount of data. If we call $N_T$ the size of the total amount of data, each processor will treat a chunk of size $\lfloor \frac{N_T}{N_p} \rfloor$, and the "master" processor will treat the remaining $N_T-\lfloor \frac{N_T}{N_p} \rfloor$. It is not the most efficient way of handling the problem, but it is much easier to implement, because each processor except the master has the same amount of data to treat. 
 
 \subsubsection{Parallel version of the algorithm}
 
@@ -127,9 +129,9 @@ We use MPI to implement the parallel version of the algorithm. We set as "master
 
 \begin{itemize}
 
-\item the calculation of $sum$. This expression contains $Ntr$ terms. Therefore each process calculates $\lfloor \frac{Ntr}{N_p}�\rfloor$ terms, and then we perform a reduce operation and the master gets the sum of all the terms. Concretely, after the calculation of one term by the processes, we perform a reduce operation and the master saves a partial sum, which it updates at each step. If $Ntr$ is not divisible by $N_p$, the master calculates the remaining terms of the sum. 
+\item the calculation of $sum$. This expression contains $Ntr$ terms. Therefore each process calculates $\lfloor \frac{Ntr}{N_p}\rfloor$ terms, and then we perform a reduce operation and the master gets the sum of all the terms. Concretely, after the calculation of one term by the processes, we perform a reduce operation and the master saves a partial sum, which it updates at each step. If $Ntr$ is not divisible by $N_p$, the master calculates the remaining terms of the sum. 
 
-\item the calculation of $Fun$. It contains $M+1$ terms, then in the same way as for $sum$ the processes evaluates $\lfloor \frac{M+1}{N_p}�\rfloor$ terms of the sum. Afterwards the MPI program does a reduce operation and the master gets the total sum. It also deals with remaining terms if $M+1$ is not divisible by $N_p$.
+\item the calculation of $Fun$. It contains $M+1$ terms, then in the same way as for $sum$ the processes evaluates $\lfloor \frac{M+1}{N_p}\rfloor$ terms of the sum. Afterwards the MPI program does a reduce operation and the master gets the total sum. It also deals with remaining terms if $M+1$ is not divisible by $N_p$.
 
 \end{itemize}
 
@@ -158,6 +160,60 @@ Once we were sure that our algorithms using MPI were properly working, we decide
 \item The parallel version of the sequential algorithm revealed itself to be extremely complicated to parallelize. Since we find MPI instructions in all the sections that could be parallelized using OpenMP, we were not able to correctly parallelize those sections. Here, we met a limit in the use of both MPI and OpenMP at the same time.
 
 \end{itemize}
+
+\subsection{Performance analysis}
+
+After implementing several solutions of the problem, we compare in this section their performance. The parameters that can be set are $N$, $M$ and the size of the input. As previously mentioned, $N$ and $M$ influence the accuracy of the solution. It is not useful to make them really big, and there is a value above which the gain in precision is negligible. Therefore we define in all our implements $N=100$ and $M=15$, and we only study the influence of the input size on the performance.\\
+
+The secret machine is a clock, therefore the input should be between 0 and 12. We then define the $step$, which corresponds to the interval between two points of the input. For example, for $step$ equal to 0.1 there are 121 points in the input data. We obtain in Table~\ref{table:comparison} the performance of our implementations, defined as the time spent to complete the calculation, for several $steps$. $MPI_1$ corresponds to the parallelization of the algorithm, $MPI_2$ to the chunked method and $MPI_{2O}$ to the chunked method with OpenMP. The results are given in seconds.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}
+  \hline
+  $step$ & 0.1 & 0.05 & 0.01 & 0.005 & 0.001\\ 
+  \hline
+  $Seq(s)$ & 16 & 33 & 149 & 288 & 1448\\
+  \hline
+   $MPI_1(s)$ & 3.42 & 6.84 & 32.44 & 64.70 & 328.57\\
+  \hline
+   $MPI_2(s)$ & 1.17 & 2.41 & 9.79 & 19.00 & 95.25\\
+  \hline
+   $MPI_{2O}(s)$ & 0.77 & 1.07 & 4.37 & 5.65 & 25.25\\
+  \hline
+  \end{tabular}
+\caption{\label{table:comparison} Performance of the different implementations for many sizes of input}
+\end{table}
+
+In light of this results, we can make several observations. First the parallelization always gives a better performance than the sequential implementation, which explains the great importance of our secret mission. Then the increase of time spent in the calculation is approximately proportional to the increase of the input size, except for the $MPI_{2O}$ with small steps. It shows that some communication costs cannot be reduced, even with a small amount of data to treat. We can also notice that the chunked method is better than the parallelization of the algorithm in every case. It may be explained by the fact that the chunked method requires less communication between the processes, because they only exchange information twice, at the beginning and at the end of the calculation. However, in the parallelization of the algorithm, the processes communicates several times for the calculation of every point. Finally, the use of OpenMP improves the efficiency of the program, allowing the program to be parallelize again on each process. \\
+
+We compute in Table~\ref{table:efficiency} the speed-up and the efficiency of the three parallel implementation for different steps. For $MPI_1$ and $MPI_2$ we parallelize the program on 16 computers, so there are 16 processors. But for the $MPI_{2O}$, we have 8 cores, on which we run 16 threads. So they are 128 processors. That explains the relatively bad results for the efficiency of $MPI_{2O}$. 
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}
+  \hline
+  $step$ & 0.1 & 0.05 & 0.01 & 0.005 & 0.001\\ 
+  \hline
+  $Seq(s)$ & 16 & 33 & 149 & 288 & 1448\\
+  \hline
+   $S_p(MPI_1)$ & 4.67 & 4.82 & 4.59 & 4.45 & 4.44\\
+  \hline
+  $E_p(MPI_1)$ & 0.29 & 0.30 & 0.29 & 0.28 & 0.28\\
+  \hline
+   $S_p(MPI_2)$ & 13.68 & 13.69 & 15.22 & 15.16 & 15.2\\
+  \hline
+  $E_p(MPI_2)$ & 0.86 & 0.86 & 0.95 & 0.95 & 0.95\\
+  \hline
+   $S_p(MPI_{2O})$ & 20.78 & 30.84 & 34.10 & 50.97 & 57.35\\
+  \hline
+  $E_p(MPI_{2O})$ & 0.16 & 0.24 & 0.27 & 0.40 & 0.45\\
+  \hline
+  \end{tabular}
+\caption{\label{table:efficiency} efficiency and speed-up of the different implementations}
+\end{table}
+
+$MPI_{2O}$ is obviously the fastest implementation but he is less efficient than $MPI_2$.
 
 \newpage
 
