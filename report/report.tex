@@ -257,9 +257,11 @@ This way, we are sure that our spies will have the best equipment while they are
 
 \appendix
 
-\section{More about the program}
+\section*{More about the program}
+\addcontentsline{toc}{section}{More about the program}
 
-\subsection{Launching the program}
+\subsection*{Launching the program}
+\addcontentsline{toc}{subsection}{Launching the program}
 
 The main part of the project is in the repository \verb_implementation/_.
 
@@ -267,7 +269,8 @@ First you need to compile the programs. A complete \textit{Makefile} is provided
 
 Then try \verb_$ ./whattime_ to get help about the syntax to use to launch the program.
 
-\subsection{Overall architecture}
+\subsection*{Overall architecture}
+\addcontentsline{toc}{subsection}{Overall architecture}
 
 The general program contains 4 C++ classes:
 \begin{itemize}
@@ -277,7 +280,9 @@ The general program contains 4 C++ classes:
 \end{itemize}
 Its function \verb_main()_ is in \textit{start.cpp} and instanciates one of those objects depending on the parameters given by the user.
 
-\subsection{Problems interfacing MPI with the rest of the program}
+\subsection*{Problems interfacing MPI with the rest of the program}
+\addcontentsline{toc}{subsection}{Problems interfacing MPI with the rest of the program}
+
 Making a global program whose executable contains MPI code would be foolish since it would use several MPI processes each time or would require to be launched with \verb_mpirun_ in every case. Hence our decision to build a different executable to handle the MPI processing, and to launch it from the global program after forking.\\
 
 The problem then is to make those two programs communicate. We need this since the wrapper must pass arguments to its child and retrieve output data from it.\\
@@ -287,6 +292,8 @@ The first option we considered was to make the data transit by name Unix pipes. 
 Thus, we decided to use a less elegant (but easier to program) solution: writing the input and output data down to normal files. The only problem with this approach is that the \verb_mpicore_ process needs a way to wake the wrapper up when it is done processing the data and has finished writing the result to the output file. In our design, such a mechanism is performed by using TCP sockets: once it has launched the \verb_mpicore_ process, the wrapper opens a server socket on the loopback interface and waits for its child to connect to it, which trigers the reading of the output file, and then the plotting.
 
 \newpage
+
+\addcontentsline{toc}{section}{BT telephone bill}
 
 \begin{figure}[!h]
 \includegraphics[width=7cm]{bt.jpg}
