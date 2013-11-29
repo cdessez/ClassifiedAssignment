@@ -102,7 +102,7 @@ The calculation of $Fun$ is the part of the algorithm we want to parallelize.
 \begin{eqnarray}
 	sum &=& \frac{1}{2}   \sum_{i=1}^{Ntr} (-1)^{i}fnRf(X,iH)\\
 	SU(1) &=& sum  \\
-	SU(k + 1) &=& SU(K) + (-1)^{Ntr}fnRf(X,(Ntr + k)H) \label{SU(i)}\\
+	SU(k + 1) &=& SU(k) + (-1)^{Ntr+k}fnRf(X,(Ntr + k)H) \label{SU(i)}\\
 	Fun &=&\frac{U}{Ctot} \sum_{i=1}^{M+1} \binom{M}{i-1}SU(i) \label{Fun}
 \end{eqnarray}
 
@@ -113,7 +113,7 @@ We can rewrite \eqref{SU(i)} this way :
 	\label{rewrite SU}
 \end{equation}
 In this case there are some values of $fnRf$ that are used by many $SU$, so that we lose time when we compute these expensive calculations more than once.
-From \eqref{Fun} and \eqref{rewrite SU} we can rewrite a formulation for Fun :
+From \eqref{Fun} and \eqref{rewrite SU} we can rewrite a formulation for $Fun$ :
 \begin{equation}
 	Fun =\displaystyle{ \frac{U}{Ctot}  \sum_{k=1}^{M+1} \binom{M}{k-1}\left(sum + \sum_{i=1}^{k-1} (-1)^{Ntr+k-1}fnRf(X,(Ntr + k-1)H)\right)}
 	\label{Fun2}
@@ -196,7 +196,7 @@ It may be explained by the fact that the chunked method requires less communicat
 
 Finally, the use of OpenMP improves the efficiency of the program, allowing the program to be parallelize again on each process. \\
 
-We compute in Table~\ref{table:efficiency} the speed-up and the efficiency of the three parallel implementations for different step values. For $MPI_1$ and $MPI_2$ we parallelize the program on 16 computers, so there are 16 processors. But for the $MPI_{2O}$, we have 8 cores, on which we run 16 threads. So they are 128 processors. That explains the relatively bad results for the efficiency of $MPI_{2O}$. 
+We compute in Table~\ref{table:efficiency} the speed-up and the efficiency of the three parallel implementations for different step values. For $MPI_1$ and $MPI_2$ we parallelize the program on 16 computers, so there are 16 processors. But for the $MPI_{2O}$, we have 8 cores on each computer. So there are 128 processors. That explains the relatively bad results for the efficiency of $MPI_{2O}$. 
 
 \begin{table}[h]
 \centering
