@@ -8,9 +8,9 @@ void printHelp(){
   cout << "NB:" << endl;
   cout << "* --seq combined with --openmp is equivalent to --seq only" << endl;
   cout << "* MPITYPE 1 corresponds to the parallelization of the calculus of";
-  cout << " a single value" << endl;
-  cout << "* MPITYPE 2 corresponds to the distribution of the values to";
-  cout << "over multiples process (and thus over multiple machines)" << endl;
+  cout << " a single value (parallel version the algorithm)" << endl;
+  cout << "* MPITYPE 2 corresponds to the distribution of the values";
+  cout << "over multiple processes (chunked method)" << endl;
   cout << "* --openmp uses multithreading inside each mpi process ";
   cout << "(only type 2)" << endl;
   cout << endl << "/!\\ this process should be launched on the machine";

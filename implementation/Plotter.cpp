@@ -30,7 +30,7 @@ void Plotter::plot(vector<double> v){
   
   // Plot the function
   Gnuplot g1("f(t)");
-  g1.set_style("lines").plot_xy(v,out,"Laplace Inversion");
+  g1.set_style("lines").plot_xy(v,out,"Inverse Laplace transform");
 
   // Plot a polarish clock like version of the output (just for fun)
   vector<double> x, y, cx, cy;
@@ -45,7 +45,8 @@ void Plotter::plot(vector<double> v){
   }
   Gnuplot g2("Clock");
   g2.set_xrange(-10,10).set_yrange(-7,7);
-  g2.set_style("lines").plot_xy(x,y,"Clock View of the Laplace Inversion");
+  g2.set_style("lines").plot_xy(x,y,
+        "Clock View of the inverse Laplace transform");
   g2.plot_xy(cx,cy,"Frame");
 
   wait_for_key(); 
